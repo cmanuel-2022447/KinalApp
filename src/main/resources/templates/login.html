@@ -8,7 +8,7 @@
 
     <style>
         /* ============================================
-           1. RESET Y ESTILOS BASE
+           1. RESET Y ESTILOS BASES
            ============================================ */
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         html { font-size: 16px; -webkit-font-smoothing: antialiased; }
@@ -27,7 +27,7 @@
         }
 
         /* ============================================
-           3. TARJETA DE LOGIN (CAJA BLANCA)
+           3. TARJETA DE LOGIN PARA INGRESAR EL USUARIO (CAJA BLANCA )
            ============================================ */
         .login-box {
             background: #fff;
@@ -142,7 +142,7 @@
         }
 
         /* ============================================
-           8. SEPARADOR Y ENLACE DE REGISTRO
+           8. SEPARADOR Y ENLACE DE REGISTROS
            ============================================ */
         .login-divider {
             text-align: center;
@@ -183,6 +183,7 @@
     </style>
 </head>
 <body>
+    \
 
 <!-- ========== CONTENEDOR PRINCIPAL ========== -->
 <div class="login-page">
@@ -196,11 +197,11 @@
 
         <h2>Iniciar Sesión</h2>
 
-        <!-- ========== MENSAJES FLASH ========== -->
+        <!-- ========== MENSAJES FLASH DE ALERTAS ETC.. ========== -->
         <div th:if="${error}" class="alert alert-error">⚠️ <span th:text="${error}"></span></div>
         <div th:if="${success}" class="alert alert-success">✅ <span th:text="${success}"></span></div>
 
-        <!-- ========== FORMULARIO DE LOGIN ========== -->
+        <!-- ========== FORMULARIO DE LOGIN PARA ========== -->
         <form th:action="@{/login}" method="post">
             <div class="form-group">
                 <label for="username">Usuario</label>
@@ -214,7 +215,7 @@
         </form>
 
         <!-- ========== SEPARADOR Y ENLACE A REGISTRO ========== -->
-        <div class="login-divider"><span>¿nuevo aquí?</span></div>
+        <div class="login-divider"><span>¿Nuevo aquí?</span></div>
         <div class="login-link">¿No tienes cuenta? <a th:href="@{/registro}">Regístrate gratis</a></div>
 
     </div>
