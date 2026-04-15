@@ -7,10 +7,7 @@ import jakarta.persistence.*;
 public class Usuario {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.TABLE, generator = "tabla_usuario")
-    @TableGenerator(name = "tabla_usuario", table = "hibernate_sequences",
-            pkColumnName = "sequence_name", valueColumnName = "next_val",
-            pkColumnValue = "usuario_id", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "codigo_usuario", nullable = false, columnDefinition = "INT")
     private Long codigoUsuario;  // Identificador del usuario
 
