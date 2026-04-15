@@ -11,7 +11,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 /**
  * Interceptor que reemplaza Spring Security:
  * si el usuario no ha iniciado sesión y trata de acceder
- * a una ruta protegida, lo redirige al login.
+ * a una ruta protegida, lo redirige al login que esta establecido.
  */
 @Component
 public class LoginInterceptor implements HandlerInterceptor {
