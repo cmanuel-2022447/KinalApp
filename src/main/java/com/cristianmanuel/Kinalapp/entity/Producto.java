@@ -8,25 +8,28 @@ import java.math.BigDecimal;
 public class Producto {
 
     @Id
-    @Column(name = "codigo_producto", nullable = false)
-    private Integer codigoProducto;
+    @GeneratedValue(strategy = GenerationType.TABLE, generator = "tabla_producto")
+    @TableGenerator(name = "tabla_producto", table = "hibernate_sequences",
+            pkColumnName = "sequence_name", valueColumnName = "next_val",
+            pkColumnValue = "producto_id", allocationSize = 1)
+    @Column(name = "codigo_producto", nullable = false, columnDefinition = "INT")
+    private Long codigoProducto;  // ID único del producto
 
     @Column(name = "nombre_producto", length = 60, nullable = false)
-    private String nombreProducto;
+    private String nombreProducto;  // Nombre del producto
 
     @Column(precision = 10, scale = 2, nullable = false)
-    private BigDecimal precio;
+    private BigDecimal precio;  // Precio actual del producto
 
-    @Column(nullable = false)
-    private Integer stock;
+    @Column(nullable = false, columnDefinition = "INT")
+    private Long stock;  // Cantidad disponible en inventario
 
-    @Column(nullable = false)
-    private Integer estado;
+    @Column(nullable = false, columnDefinition = "INT")
+    private Long estado;  // 1 = activo, 0 = inactivo
 
-    // Constructores
     public Producto() {}
 
-    public Producto(Integer codigoProducto, String nombreProducto, BigDecimal precio, Integer stock, Integer estado) {
+    public Producto(Long codigoProducto, String nombreProducto, BigDecimal precio, Long stock, Long estado) {
         this.codigoProducto = codigoProducto;
         this.nombreProducto = nombreProducto;
         this.precio = precio;
@@ -35,8 +38,8 @@ public class Producto {
     }
 
     // Getters y Setters
-    public Integer getCodigoProducto() { return codigoProducto; }
-    public void setCodigoProducto(Integer codigoProducto) { this.codigoProducto = codigoProducto; }
+    public Long getCodigoProducto() { return codigoProducto; }
+    public void setCodigoProducto(Long codigoProducto) { this.codigoProducto = codigoProducto; }
 
     public String getNombreProducto() { return nombreProducto; }
     public void setNombreProducto(String nombreProducto) { this.nombreProducto = nombreProducto; }
@@ -44,9 +47,9 @@ public class Producto {
     public BigDecimal getPrecio() { return precio; }
     public void setPrecio(BigDecimal precio) { this.precio = precio; }
 
-    public Integer getStock() { return stock; }
-    public void setStock(Integer stock) { this.stock = stock; }
+    public Long getStock() { return stock; }
+    public void setStock(Long stock) { this.stock = stock; }
 
-    public Integer getEstado() { return estado; }
-    public void setEstado(Integer estado) { this.estado = estado; }
+    public Long getEstado() { return estado; }
+    public void setEstado(Long estado) { this.estado = estado; }
 }

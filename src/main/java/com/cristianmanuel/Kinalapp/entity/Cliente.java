@@ -1,17 +1,22 @@
 package com.cristianmanuel.Kinalapp.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 
 @Entity
+// @Entity le dice a Spring que esta clase representa una tabla en la BD
 @Table(name = "Clientes")
+// @Table define el nombre exacto de la tabla en la BD
 public class Cliente {
 
     @Id
-    @Column(name = "dpi_cliente", nullable = false)
-    private Integer dpiCliente;
+    // @Id indica que este campo es la llave primaria de la tabla
+    @Column(name = "dpi_cliente", nullable = false, columnDefinition = "INT")
+    // nullable = false: el campo no puede ser nulo en la BD
+    // columnDefinition = "INT": define el tipo de dato en la BD
+    private Long dpiCliente;
 
     @Column(name = "nombre_cliente", length = 50, nullable = false)
+    // length = 50: longitud maxima del campo en la BD
     private String nombreCliente;
 
     @Column(name = "apellido_cliente", length = 50, nullable = false)
@@ -20,13 +25,15 @@ public class Cliente {
     @Column(length = 100, nullable = false)
     private String direccion;
 
-    @Column(nullable = false)
-    private Integer estado;
+    @Column(nullable = false, columnDefinition = "INT")
+    private Long estado;
 
-    // Constructores
+    // Constructor vacio requerido por JPA
     public Cliente() {}
 
-    public Cliente(Integer dpiCliente, String nombreCliente, String apellidoCliente, String direccion, Integer estado) {
+    // Constructor con todos los campos
+    public Cliente(Long dpiCliente, String nombreCliente, String apellidoCliente,
+                   String direccion, Long estado) {
         this.dpiCliente = dpiCliente;
         this.nombreCliente = nombreCliente;
         this.apellidoCliente = apellidoCliente;
@@ -35,8 +42,9 @@ public class Cliente {
     }
 
     // Getters y Setters
-    public Integer getDpiCliente() { return dpiCliente; }
-    public void setDpiCliente(Integer dpiCliente) { this.dpiCliente = dpiCliente; }
+    // Permiten acceder y modificar los atributos privados de la clase
+    public Long getDpiCliente() { return dpiCliente; }
+    public void setDpiCliente(Long dpiCliente) { this.dpiCliente = dpiCliente; }
 
     public String getNombreCliente() { return nombreCliente; }
     public void setNombreCliente(String nombreCliente) { this.nombreCliente = nombreCliente; }
@@ -47,6 +55,6 @@ public class Cliente {
     public String getDireccion() { return direccion; }
     public void setDireccion(String direccion) { this.direccion = direccion; }
 
-    public Integer getEstado() { return estado; }
-    public void setEstado(Integer estado) { this.estado = estado; }
+    public Long getEstado() { return estado; }
+    public void setEstado(Long estado) { this.estado = estado; }
 }

@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menú Principal - KinalApp</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        /* ============================================
+           1. RESET Y ESTILOS BASE
+           ============================================ */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { font-size: 16px; -webkit-font-smoothing: antialiased; }
+        body {
+            font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+            background: #f0f4ff;
+            color: #0f172a;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ============================================
+           2. BARRA DE NAVEGACIÓN (NAVBAR)
+           ============================================ */
+        .navbar {
+            background: linear-gradient(135deg, #0f172a 0%, #1e2d4a 100%);
+            height: 62px;
+            padding: 0 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 200;
+            box-shadow: 0 2px 16px rgba(15,23,42,.4);
+            border-bottom: 1px solid rgba(255,255,255,.06);
+        }
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: #fff;
+            font-size: 1.1rem;
+            font-weight: 800;
+            letter-spacing: -.03em;
+            flex-shrink: 0;
+        }
+        .navbar-nav {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            list-style: none;
+        }
+        .navbar-nav a {
+            color: rgba(255,255,255,.6);
+            text-decoration: none;
+            padding: 6px 11px;
+            border-radius: 8px;
+            font-size: .78rem;
+            font-weight: 600;
+            transition: background .18s, color .18s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            white-space: nowrap;
+        }
+        .navbar-nav a:hover {
+            background: rgba(255,255,255,.09);
+            color: #fff;
+        }
+        .navbar-nav a.active {
+            background: rgba(59,130,246,.25);
+            color: #93c5fd;
+            border: 1px solid rgba(59,130,246,.3);
+        }
+        .navbar-user {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+        .btn-logout {
+            background: rgba(239,68,68,.15);
+            color: #fca5a5;
+            border: 1px solid rgba(239,68,68,.25);
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-size: .78rem;
+            font-weight: 700;
+            text-decoration: none;
+            transition: background .18s;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        .btn-logout:hover {
+            background: rgba(239,68,68,.28);
+        }
+
+        /* ============================================
+           3. CONTENEDOR PRINCIPAL
+           ============================================ */
+        .page-content {
+            flex: 1;
+            padding: 28px 32px;
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        /* ============================================
+           4. ENCABEZADO DE PÁGINA
+           ============================================ */
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 22px;
+        }
+        .page-header h2 {
+            font-size: 1.45rem;
+            font-weight: 800;
+            color: #0f172a;
+            letter-spacing: -.03em;
+        }
+
+        /* ============================================
+           5. TARJETAS DEL MENÚ (GRID)
+           ============================================ */
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
+            gap: 16px;
+            margin-top: 8px;
+        }
+        .menu-card {
+            background: #fff;
+            border-radius: 14px;
+            padding: 28px 20px;
+            text-align: center;
+            box-shadow: 0 1px 4px rgba(0,0,0,.06), 0 0 0 1px rgba(0,0,0,.05);
+            transition: transform .2s, box-shadow .2s;
+            text-decoration: none;
+            color: #0f172a;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+        /* Línea superior de color según módulo */
+        .menu-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--card-color, #3b82f6);
+        }
+        .menu-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,.1);
+        }
+        .menu-card .card-icon {
+            font-size: 2rem;
+            width: 54px;
+            height: 54px;
+            border-radius: 12px;
+            display: grid;
+            place-items: center;
+            background: var(--card-bg, #eff6ff);
+        }
+        .menu-card .card-label {
+            font-weight: 700;
+            font-size: .88rem;
+            color: #334155;
+        }
+
+        /* ============================================
+           6. PIE DE PÁGINA
+           ============================================ */
+        footer {
+            background: #fff;
+            border-top: 1px solid #e9eef6;
+            color: #94a3b8;
+            text-align: center;
+            padding: 14px;
+            font-size: .75rem;
+            font-weight: 600;
+        }
+
+        /* ============================================
+           7. RESPONSIVE
+           ============================================ */
+        @media (max-width: 800px) {
+            .navbar {
+                padding: 0 14px;
+                height: auto;
+                flex-wrap: wrap;
+                gap: 8px;
+                padding-block: 10px;
+            }
+            .navbar-nav {
+                gap: 1px;
+                flex-wrap: wrap;
+            }
+            .navbar-nav a {
+                font-size: .72rem;
+                padding: 5px 7px;
+            }
+            .page-content {
+                padding: 16px;
+            }
+            .menu-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ========== BARRA DE NAVEGACIÓN ========== -->
+<nav class="navbar">
+    <a class="navbar-brand" th:href="@{/web/menu}">
+        <img src="/css/logo.png" alt="KinalApp Logo" style="height:48px;width:auto;object-fit:contain;">
+    </a>
+    <ul class="navbar-nav">
+        <li><a th:href="@{/web/menu}" class="active">🏠 Inicio</a></li>
+        <li><a th:href="@{/clientes/web}">👥 Clientes</a></li>
+        <li><a th:href="@{/productos/web}">📦 Productos</a></li>
+        <li><a th:href="@{/usuarios/web}">👤 Usuarios</a></li>
+        <li><a th:href="@{/ventas/web}">💰 Ventas</a></li>
+        <li><a th:href="@{/detalleventa/web}">🧾 Det. Ventas</a></li>
+    </ul>
+    <div class="navbar-user">
+        <a th:href="@{/logout}" class="btn-logout">🚪 Salir</a>
+    </div>
+</nav>
+
+<!-- ========== CONTENIDO PRINCIPAL ========== -->
+<div class="page-content">
+    <div class="page-header">
+        <h2>🏠 Panel Principal</h2>
+    </div>
+    <p style="color:#64748b; margin-bottom:24px; font-weight:500;">Bienvenido a KinalApp. Selecciona un módulo para comenzar.</p>
+
+    <!-- ========== TARJETAS DE ACCESO RÁPIDO ========== -->
+    <div class="menu-grid">
+        <a class="menu-card" th:href="@{/clientes/web}" style="--card-color:#2563eb;--card-bg:#eff6ff;">
+            <span class="card-icon">👥</span>
+            <span class="card-label">Clientes</span>
+        </a>
+        <a class="menu-card" th:href="@{/productos/web}" style="--card-color:#059669;--card-bg:#ecfdf5;">
+            <span class="card-icon">📦</span>
+            <span class="card-label">Productos</span>
+        </a>
+        <a class="menu-card" th:href="@{/usuarios/web}" style="--card-color:#7c3aed;--card-bg:#f5f3ff;">
+            <span class="card-icon">👤</span>
+            <span class="card-label">Usuarios</span>
+        </a>
+        <a class="menu-card" th:href="@{/ventas/web}" style="--card-color:#d97706;--card-bg:#fffbeb;">
+            <span class="card-icon">💰</span>
+            <span class="card-label">Ventas</span>
+        </a>
+        <a class="menu-card" th:href="@{/detalleventa/web}" style="--card-color:#dc2626;--card-bg:#fef2f2;">
+            <span class="card-icon">🧾</span>
+            <span class="card-label">Detalle Ventas</span>
+        </a>
+    </div>
+</div>
+
+<!-- ========== PIE DE PÁGINA ========== -->
+<footer><p>&copy; 2025 KinalApp — Sistema de Ventas</p></footer>
+
+</body>
+</html>

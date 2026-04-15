@@ -4,110 +4,174 @@ import com.cristianmanuel.Kinalapp.entity.Usuario;
 import com.cristianmanuel.Kinalapp.service.IUsuarioService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
 import java.util.List;
 
-@RestController
-// @RestController = @Controller + @ResponseBody
+/**
+ * Controlador CRUD para la entidad Usuario.
+ * Nota importante: La eliminación está deshabilitada por política del sistema
+ * (integridad de datos y auditoría). Solo se puede desactivar (cambiar estado).
+ */
+@Controller
 @RequestMapping("/usuarios")
-// Todas las rutas en este controlador deben empezar con /usuarios
 public class UsuarioController {
 
-    // Inyectamos el SERVICIO y NO el repositorio
-    // El controlador solo debe de tener conexion con el servidor
     private final IUsuarioService usuarioService;
 
-    // Como buena práctica la Inyección de dependencias debe hacerse por el constructor
     public UsuarioController(IUsuarioService usuarioService) {
         this.usuarioService = usuarioService;
     }
 
-    // Responde a peticiones GET
+    // ========== REST API ==========
+
+    /**
+     * Listar todos los usuarios (GET /usuarios)
+     */
     @GetMapping
-    // ResponseEntity nos permite controlar el codigo HTTP y el cuerpo
-    public ResponseEntity<List<Usuario>> listar() {
-        List<Usuario> usuarios = usuarioService.listarTodos();
-        // delegamos al servicio y retornamos 200 ok
-        return ResponseEntity.ok(usuarios);
-        // 200 ok con la lista de Usuario
+    @ResponseBody
+    public ResponseEntity<List<Usuario>> listarRest() {
+        return ResponseEntity.ok(usuarioService.listarTodos());
     }
 
-    /*
-     * {codigo} es una variable de ruta (valor a buscar)
+    /**
+     * Buscar usuario por código (GET /usuarios/{codigo})
      */
     @GetMapping("/{codigo}")
-    public ResponseEntity<Usuario> buscarPorCodigo(@PathVariable Integer codigo) {
-        // @PathVariable Toma el valor de la URL y lo asigna al codigo
+    @ResponseBody
+    public ResponseEntity<Usuario> buscarPorCodigo(@PathVariable Long codigo) {
         return usuarioService.buscarPorCodigo(codigo)
-                // si optional tiene el valor de la URL y lo asigna al codigo
                 .map(ResponseEntity::ok)
-                // Si Optional esta vacio, devuelve 404 NOT FOUND
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    /**
+     * Filtrar usuarios por estado (activo/inactivo).
+     * GET /usuarios/estado/{estado}  donde estado es 1 (activo) o 0 (inactivo)
+     */
     @GetMapping("/estado/{estado}")
+    @ResponseBody
     public ResponseEntity<List<Usuario>> buscarPorEstado(@PathVariable int estado) {
         List<Usuario> usuarios = usuarioService.buscarPorEstado(estado);
-        if (usuarios.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(usuarios);
+        return usuarios.isEmpty() ? ResponseEntity.notFound().build() : ResponseEntity.ok(usuarios);
     }
 
-    // POST crear un nuevo usuario
+    /**
+     * Crear nuevo usuario (POST /usuarios)
+     */
     @PostMapping
-    public ResponseEntity<?> guardar(@RequestBody Usuario usuario) {
-        // @RequestBody: Toma el JSON del cuerpo y lo convierte a un objeto de tipo Usuario
-        // <?> significa "tipo generico" puede ser un Usuario o un String
+    @ResponseBody
+    public ResponseEntity<?> guardarRest(@RequestBody Usuario usuario) {
         try {
-            Usuario nuevoUsuario = usuarioService.guardar(usuario);
-            // Intentamos guardar el usuario pero puede lanzar una excepcion
-            // de IllegalArgumentException
-            return new ResponseEntity<>(nuevoUsuario, HttpStatus.CREATED);
-            // 201 CREATED (mucho mas especifico que el 200 para la creacion de un usuario)
+            return new ResponseEntity<>(usuarioService.guardar(usuario), HttpStatus.CREATED);
         } catch (IllegalArgumentException e) {
-            // si hay error de validaciones
             return ResponseEntity.badRequest().body(e.getMessage());
-            // 400 BAD REQUEST con mensaje de error
         }
     }
 
-    // DELETE eliminar un usuario
+    /**
+     * Eliminar usuario (DELETE /usuarios/{codigo})
+     * Este endpoint REST sí permite eliminación física (para APIs externas).
+     * La interfaz web no lo usa.
+     */
     @DeleteMapping("/{codigo}")
-    public ResponseEntity<Void> eliminar(@PathVariable Integer codigo) {
-        // ResponseEntity<Void>: No devuelve cuerpo en la respuesta
+    @ResponseBody
+    public ResponseEntity<Void> eliminarRest(@PathVariable Long codigo) {
+        if (!usuarioService.existePorCodigo(codigo)) return ResponseEntity.notFound().build();
+        usuarioService.eliminar(codigo);
+        return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * Actualizar usuario (PUT /usuarios/{codigo})
+     */
+    @PutMapping("/{codigo}")
+    @ResponseBody
+    public ResponseEntity<?> actualizarRest(@PathVariable Long codigo, @RequestBody Usuario usuario) {
         try {
-            if (!usuarioService.existePorCodigo(codigo)) {
-                return ResponseEntity.notFound().build();
-            }
-            usuarioService.eliminar(codigo);
-            return ResponseEntity.noContent().build();
-            // 204 NO CONTENT
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
+            if (!usuarioService.existePorCodigo(codigo)) return ResponseEntity.notFound().build();
+            return ResponseEntity.ok(usuarioService.actualizar(codigo, usuario));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
-    // Actualizar usuario a través de su código
-    @PutMapping("/{codigo}")
-    public ResponseEntity<?> actualizar(@PathVariable Integer codigo, @RequestBody Usuario usuario) {
+    // ========== Vistas Web ==========
+
+    /**
+     * Lista de usuarios en HTML (GET /usuarios/web)
+     */
+    @GetMapping("/web")
+    public String listarWeb(Model model) {
+        model.addAttribute("usuarios", usuarioService.listarTodos());
+        return "usuarios/list";
+    }
+
+    /**
+     * Formulario para nuevo usuario (GET /usuarios/web/nuevo)
+     */
+    @GetMapping("/web/nuevo")
+    public String nuevoFormulario(Model model) {
+        model.addAttribute("usuario", new Usuario());
+        return "usuarios/form";
+    }
+
+    /**
+     * Guardar desde formulario web (POST /usuarios/web/guardar)
+     */
+    @PostMapping("/web/guardar")
+    public String guardarWeb(@ModelAttribute Usuario usuario, RedirectAttributes redirectAttributes) {
         try {
-            if (!usuarioService.existePorCodigo(codigo)) {
-                // Verificar si existe antes de poder actualizar
-                // 404 NOT FOUND
-                return ResponseEntity.notFound().build();
-            }
-            // Actualizar el usuario pero esto puede lanzar una excepcion
-            Usuario usuarioActualizado = usuarioService.actualizar(codigo, usuario);
-            return ResponseEntity.ok(usuarioActualizado);
-            // 200 ok con el usuario ya actualizado
+            usuarioService.guardar(usuario);
+            redirectAttributes.addFlashAttribute("success", "Usuario guardado correctamente.");
         } catch (IllegalArgumentException e) {
-            // Error cuando los datos son incorrectos
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (RuntimeException e) {
-            // Posiblemente cualquier otro error como: Usuario no encontrado, etc.
-            // 404 NOT FOUND
-            return ResponseEntity.notFound().build();
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
         }
+        return "redirect:/usuarios/web";
+    }
+
+    /**
+     * Formulario de edición (GET /usuarios/web/editar/{codigo})
+     */
+    @GetMapping("/web/editar/{codigo}")
+    public String editarFormulario(@PathVariable Long codigo, Model model, RedirectAttributes redirectAttributes) {
+        try {
+            Usuario usuario = usuarioService.buscarPorCodigo(codigo)
+                    .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+            model.addAttribute("usuario", usuario);
+            return "usuarios/form";
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            return "redirect:/usuarios/web";
+        }
+    }
+
+    /**
+     * Actualizar desde formulario web (POST /usuarios/web/actualizar/{codigo})
+     */
+    @PostMapping("/web/actualizar/{codigo}")
+    public String actualizarWeb(@PathVariable Long codigo, @ModelAttribute Usuario usuario, RedirectAttributes redirectAttributes) {
+        try {
+            usuarioService.actualizar(codigo, usuario);
+            redirectAttributes.addFlashAttribute("success", "Usuario actualizado correctamente.");
+        } catch (RuntimeException e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+        }
+        return "redirect:/usuarios/web";
+    }
+
+    /**
+     * Eliminación deshabilitada en web por política del sistema.
+     * En lugar de borrar, se debería cambiar el estado a inactivo.
+     * Este método muestra un mensaje de error explicativo.
+     */
+    @GetMapping("/web/eliminar/{codigo}")
+    public String eliminarWeb(@PathVariable Long codigo, RedirectAttributes redirectAttributes) {
+        redirectAttributes.addFlashAttribute("error",
+                "❌ No se permite eliminar usuarios. Los registros primarios no pueden ser borrados.");
+        return "redirect:/usuarios/web";
     }
 }
