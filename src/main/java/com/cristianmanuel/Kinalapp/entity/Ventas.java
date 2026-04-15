@@ -12,10 +12,7 @@ import java.util.List;
 public class Ventas {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.TABLE, generator = "tabla_venta")
-    @TableGenerator(name = "tabla_venta", table = "hibernate_sequences",
-            pkColumnName = "sequence_name", valueColumnName = "next_val",
-            pkColumnValue = "venta_id", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "codigo_venta", nullable = false, columnDefinition = "INT")
     private Long codigoVenta;  // Número único de venta
 
