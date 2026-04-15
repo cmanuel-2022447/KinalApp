@@ -12,7 +12,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
  * Controlador para el registro de nuevos usuarios.
- * Permite crear una cuenta sin necesidad de estar autenticado.
+ * Permite crear una cuenta sin necesidad de estar autenticado a cada rato.
  * Las validaciones incluyen unicidad de username y email.
  */
 @Controller
