@@ -8,10 +8,7 @@ import java.math.BigDecimal;
 public class Producto {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.TABLE, generator = "tabla_producto")
-    @TableGenerator(name = "tabla_producto", table = "hibernate_sequences",
-            pkColumnName = "sequence_name", valueColumnName = "next_val",
-            pkColumnValue = "producto_id", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "codigo_producto", nullable = false, columnDefinition = "INT")
     private Long codigoProducto;  // ID único del producto
 
