@@ -2,137 +2,234 @@ package com.cristianmanuel.Kinalapp.controller;
 
 import com.cristianmanuel.Kinalapp.entity.DetalleVenta;
 import com.cristianmanuel.Kinalapp.service.IDetalleVentaService;
+import com.cristianmanuel.Kinalapp.service.IProductoService;
+import com.cristianmanuel.Kinalapp.service.IVentasService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
 import java.util.List;
 
-@RestController
-// @RestController = @Controller + @ResponseBody
+/**
+ * Controlador que maneja las operaciones CRUD para DetalleVenta.
+ * Proporciona endpoints REST (JSON) y rutas para vistas web (Thymeleaf/JSP).
+ */
+@Controller
 @RequestMapping("/detalleventa")
-// Todas las rutas en este controlador deben empezar con /detalleventa
 public class DetalleVentaController {
 
-    // Inyectamos el SERVICIO y NO el repositorio
-    // El controlador solo debe de tener conexion con el servidor
     private final IDetalleVentaService detalleVentaService;
+    private final IProductoService     productoService;
+    private final IVentasService       ventasService;
 
-    // Como buena práctica la Inyección de dependencias debe hacerse por el constructor
-    public DetalleVentaController(IDetalleVentaService detalleVentaService) {
+    // Inyección de dependencias por constructor (recomendada sobre @Autowired en campo)
+    public DetalleVentaController(IDetalleVentaService detalleVentaService,
+                                  IProductoService productoService,
+                                  IVentasService ventasService) {
         this.detalleVentaService = detalleVentaService;
+        this.productoService     = productoService;
+        this.ventasService       = ventasService;
     }
 
-    // Responde a peticiones GET
+    // ========== ENDPOINTS REST (API JSON) ==========
+
+    /**
+     * GET /detalleventa
+     * Lista todos los detalles de venta en formato JSON.
+     */
     @GetMapping
-    // ResponseEntity nos permite controlar el codigo HTTP y el cuerpo
-    public ResponseEntity<List<DetalleVenta>> listar() {
-        List<DetalleVenta> detalles = detalleVentaService.listarTodos();
-        // delegamos al servicio y retornamos 200 ok
-        return ResponseEntity.ok(detalles);
-        // 200 ok con la lista de DetalleVenta
+    @ResponseBody
+    public ResponseEntity<List<DetalleVenta>> listarRest() {
+        return ResponseEntity.ok(detalleVentaService.listarTodos());
     }
 
-    /*
-     * {codigo} es una variable de ruta (valor a buscar)
+    /**
+     * GET /detalleventa/{codigo}
+     * Busca un detalle de venta por su código (ID).
+     * Retorna 404 si no existe.
      */
     @GetMapping("/{codigo}")
-    public ResponseEntity<DetalleVenta> buscarPorCodigo(@PathVariable Integer codigo) {
-        // @PathVariable Toma el valor de la URL y lo asigna al codigo
+    @ResponseBody
+    public ResponseEntity<DetalleVenta> buscarPorCodigo(@PathVariable Long codigo) {
         return detalleVentaService.buscarPorCodigo(codigo)
-                // si optional tiene el valor de la URL y lo asigna al codigo
                 .map(ResponseEntity::ok)
-                // Si Optional esta vacio, devuelve 404 NOT FOUND
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    /*
-     * {codigoVenta} es una variable de ruta para buscar por venta
+    /**
+     * GET /detalleventa/venta/{codigoVenta}
+     * Obtiene todos los detalles asociados a una venta específica.
+     * Retorna 404 si no hay detalles para esa venta.
      */
     @GetMapping("/venta/{codigoVenta}")
-    public ResponseEntity<List<DetalleVenta>> buscarPorVenta(@PathVariable Integer codigoVenta) {
+    @ResponseBody
+    public ResponseEntity<List<DetalleVenta>> buscarPorVenta(@PathVariable Long codigoVenta) {
         List<DetalleVenta> detalles = detalleVentaService.buscarPorVenta(codigoVenta);
-        if (detalles.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(detalles);
+        return detalles.isEmpty() ? ResponseEntity.notFound().build() : ResponseEntity.ok(detalles);
     }
 
-    /*
-     * {codigoProducto} es una variable de ruta para buscar por producto
+    /**
+     * GET /detalleventa/producto/{codigoProducto}
+     * Obtiene todos los detalles que corresponden a un producto concreto.
+     * Retorna 404 si no hay ninguno.
      */
     @GetMapping("/producto/{codigoProducto}")
-    public ResponseEntity<List<DetalleVenta>> buscarPorProducto(@PathVariable Integer codigoProducto) {
+    @ResponseBody
+    public ResponseEntity<List<DetalleVenta>> buscarPorProducto(@PathVariable Long codigoProducto) {
         List<DetalleVenta> detalles = detalleVentaService.buscarPorProducto(codigoProducto);
-        if (detalles.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(detalles);
+        return detalles.isEmpty() ? ResponseEntity.notFound().build() : ResponseEntity.ok(detalles);
     }
 
+    /**
+     * GET /detalleventa/estado/{estado}
+     * Filtra detalles por su estado (ej: activo, cancelado, etc.).
+     * El estado es un número entero que representa un enum en la lógica de negocio.
+     */
     @GetMapping("/estado/{estado}")
+    @ResponseBody
     public ResponseEntity<List<DetalleVenta>> buscarPorEstado(@PathVariable int estado) {
         List<DetalleVenta> detalles = detalleVentaService.buscarPorEstado(estado);
-        if (detalles.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(detalles);
+        return detalles.isEmpty() ? ResponseEntity.notFound().build() : ResponseEntity.ok(detalles);
     }
 
-    // POST crear un nuevo detalle de venta
+    /**
+     * POST /detalleventa
+     * Crea un nuevo detalle de venta a partir de JSON.
+     * Retorna 201 Created si todo va bien, o 400 Bad Request si hay error de validación.
+     */
     @PostMapping
-    public ResponseEntity<?> guardar(@RequestBody DetalleVenta detalleVenta) {
-        // @RequestBody: Toma el JSON del cuerpo y lo convierte a un objeto de tipo DetalleVenta
-        // <?> significa "tipo generico" puede ser un DetalleVenta o un String
+    @ResponseBody
+    public ResponseEntity<?> guardarRest(@RequestBody DetalleVenta detalleVenta) {
         try {
-            DetalleVenta nuevoDetalle = detalleVentaService.guardar(detalleVenta);
-            // Intentamos guardar el detalle pero puede lanzar una excepcion
-            // de IllegalArgumentException
-            return new ResponseEntity<>(nuevoDetalle, HttpStatus.CREATED);
-            // 201 CREATED (mucho mas especifico que el 200 para la creacion de un detalle)
+            return new ResponseEntity<>(detalleVentaService.guardar(detalleVenta), HttpStatus.CREATED);
         } catch (IllegalArgumentException e) {
-            // si hay error de validaciones
             return ResponseEntity.badRequest().body(e.getMessage());
-            // 400 BAD REQUEST con mensaje de error
         }
     }
 
-    // DELETE eliminar un detalle de venta
+    /**
+     * DELETE /detalleventa/{codigo}
+     * Elimina un detalle de venta por su código.
+     * Retorna 204 No Content si se elimina correctamente, 404 si no existe.
+     * Nota: En la parte web este método no se usa porque se bloquea la eliminación por razones contables.
+     */
     @DeleteMapping("/{codigo}")
-    public ResponseEntity<Void> eliminar(@PathVariable Integer codigo) {
-        // ResponseEntity<Void>: No devuelve cuerpo en la respuesta
+    @ResponseBody
+    public ResponseEntity<Void> eliminarRest(@PathVariable Long codigo) {
+        if (!detalleVentaService.existePorCodigo(codigo)) return ResponseEntity.notFound().build();
+        detalleVentaService.eliminar(codigo);
+        return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * PUT /detalleventa/{codigo}
+     * Actualiza completamente un detalle de venta existente.
+     * Retorna 200 OK con el objeto actualizado, 404 si no se encuentra, o 400 si hay error.
+     */
+    @PutMapping("/{codigo}")
+    @ResponseBody
+    public ResponseEntity<?> actualizarRest(@PathVariable Long codigo, @RequestBody DetalleVenta detalleVenta) {
         try {
-            if (!detalleVentaService.existePorCodigo(codigo)) {
-                return ResponseEntity.notFound().build();
-            }
-            detalleVentaService.eliminar(codigo);
-            return ResponseEntity.noContent().build();
-            // 204 NO CONTENT
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
+            if (!detalleVentaService.existePorCodigo(codigo)) return ResponseEntity.notFound().build();
+            detalleVenta.setCodigoDetalleVenta(codigo);
+            return ResponseEntity.ok(detalleVentaService.actualizar(codigo, detalleVenta));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
-    // Actualizar detalle de venta a través de su código
-    @PutMapping("/{codigo}")
-    public ResponseEntity<?> actualizar(@PathVariable Integer codigo, @RequestBody DetalleVenta detalleVenta) {
+    // ========== ENDPOINTS PARA VISTAS WEB ==========
+
+    /**
+     * GET /detalleventa/web
+     * Muestra la lista de todos los detalles de venta en una página HTML.
+     * Los datos se inyectan en el modelo con nombre "detalles".
+     */
+    @GetMapping("/web")
+    public String listarWeb(Model model) {
+        model.addAttribute("detalles", detalleVentaService.listarTodos());
+        return "detalleventa/list";
+    }
+
+    /**
+     * GET /detalleventa/web/nuevo
+     * Despliega el formulario para crear un nuevo detalle de venta.
+     * Se pasan al modelo: un objeto DetalleVenta vacío, la lista de productos y la lista de ventas.
+     */
+    @GetMapping("/web/nuevo")
+    public String nuevoFormulario(Model model) {
+        model.addAttribute("detalle", new DetalleVenta());
+        model.addAttribute("productos", productoService.listarTodos());
+        model.addAttribute("ventas", ventasService.listarTodos());
+        return "detalleventa/form";
+    }
+
+    /**
+     * POST /detalleventa/web/guardar
+     * Procesa el envío del formulario para crear un nuevo detalle de venta.
+     * Usa RedirectAttributes para mostrar mensajes flash de éxito o error.
+     */
+    @PostMapping("/web/guardar")
+    public String guardarWeb(@ModelAttribute DetalleVenta detalle, RedirectAttributes redirectAttributes) {
         try {
-            if (!detalleVentaService.existePorCodigo(codigo)) {
-                // Verificar si existe antes de poder actualizar
-                // 404 NOT FOUND
-                return ResponseEntity.notFound().build();
-            }
-            // Actualizar el detalle pero esto puede lanzar una excepcion
-            detalleVenta.setCodigoDetalleVenta(codigo);
-            DetalleVenta detalleActualizado = detalleVentaService.actualizar(codigo, detalleVenta);
-            return ResponseEntity.ok(detalleActualizado);
-            // 200 ok con el detalle ya actualizado
+            detalleVentaService.guardar(detalle);
+            redirectAttributes.addFlashAttribute("success", "Detalle guardado correctamente.");
         } catch (IllegalArgumentException e) {
-            // Error cuando los datos son incorrectos
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (RuntimeException e) {
-            // Posiblemente cualquier otro error como: Detalle no encontrado, etc.
-            // 404 NOT FOUND
-            return ResponseEntity.notFound().build();
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
         }
+        return "redirect:/detalleventa/web";
+    }
+
+    /**
+     * GET /detalleventa/web/editar/{codigo}
+     * Muestra el formulario de edición precargado con los datos del detalle existente.
+     * También carga las listas de productos y ventas para los desplegables.
+     * Si no existe el detalle, redirige con mensaje de error.
+     */
+    @GetMapping("/web/editar/{codigo}")
+    public String editarFormulario(@PathVariable Long codigo, Model model, RedirectAttributes redirectAttributes) {
+        try {
+            DetalleVenta detalle = detalleVentaService.buscarPorCodigo(codigo)
+                    .orElseThrow(() -> new IllegalArgumentException("Detalle no encontrado"));
+            model.addAttribute("detalle", detalle);
+            model.addAttribute("productos", productoService.listarTodos());
+            model.addAttribute("ventas", ventasService.listarTodos());
+            return "detalleventa/form";
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            return "redirect:/detalleventa/web";
+        }
+    }
+
+    /**
+     * POST /detalleventa/web/actualizar/{codigo}
+     * Procesa la actualización de un detalle de venta desde el formulario.
+     * El código se pasa por la URL y el objeto con los nuevos datos viene del formulario.
+     */
+    @PostMapping("/web/actualizar/{codigo}")
+    public String actualizarWeb(@PathVariable Long codigo, @ModelAttribute DetalleVenta detalle, RedirectAttributes redirectAttributes) {
+        try {
+            detalleVentaService.actualizar(codigo, detalle);
+            redirectAttributes.addFlashAttribute("success", "Detalle actualizado correctamente.");
+        } catch (RuntimeException e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+        }
+        return "redirect:/detalleventa/web";
+    }
+
+    /**
+     * GET /detalleventa/web/eliminar/{codigo}
+     * Intento de eliminación desde la interfaz web.
+     * Está deshabilitado porque eliminar detalles de venta afectaría la integridad contable.
+     * Se muestra un mensaje de error indicando que la operación constituye fraude.
+     */
+    @GetMapping("/web/eliminar/{codigo}")
+    public String eliminarWeb(@PathVariable Long codigo, RedirectAttributes redirectAttributes) {
+        redirectAttributes.addFlashAttribute("error",
+                "❌ No se permite eliminar detalles de venta. Eliminar registros contables constituye fraude.");
+        return "redirect:/detalleventa/web";
     }
 }

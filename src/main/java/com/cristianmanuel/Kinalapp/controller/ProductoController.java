@@ -4,110 +4,213 @@ import com.cristianmanuel.Kinalapp.entity.Producto;
 import com.cristianmanuel.Kinalapp.service.IProductoService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
 import java.util.List;
 
-@RestController
-// @RestController = @Controller + @ResponseBody
-@RequestMapping("/productos")
-// Todas las rutas en este controlador deben empezar con /productos
+/**
+ * Controlador CRUD para la entidad Producto.
+ * Expone dos interfaces:
+ * - REST API (JSON) para consumir desde frontend externo o aplicaciones móviles.
+ * - Vistas web (Thymeleaf) para manejo desde navegador con formularios HTML.
+ */
+@Controller  // Indica que es un controlador Spring.
+@RequestMapping("/productos")  // Ruta base para todos los endpoints de este controlador.
 public class ProductoController {
 
-    // Inyectamos el SERVICIO y NO el repositorio
-    // El controlador solo debe de tener conexion con el servidor
+    // Servicio que contiene la lógica de negocio para productos.
     private final IProductoService productoService;
 
-    // Como buena práctica la Inyección de dependencias debe hacerse por el constructor
+    // Constructor: inyección de dependencia del servicio.
     public ProductoController(IProductoService productoService) {
         this.productoService = productoService;
     }
 
-    // Responde a peticiones GET
-    @GetMapping
-    // ResponseEntity nos permite controlar el codigo HTTP y el cuerpo
-    public ResponseEntity<List<Producto>> listar() {
-        List<Producto> productos = productoService.listarTodos();
-        // delegamos al servicio y retornamos 200 ok
-        return ResponseEntity.ok(productos);
-        // 200 ok con la lista de Producto
-    }
+    // ========== ENDPOINTS REST (devuelven JSON) ==========
 
-    /*
-     * {codigo} es una variable de ruta (valor a buscar)
+    /**
+     * Lista todos los productos en formato JSON.
+     * GET /productos
+     * @return ResponseEntity con la lista y código HTTP 200 OK.
      */
-    @GetMapping("/{codigo}")
-    public ResponseEntity<Producto> buscarPorCodigo(@PathVariable Integer codigo) {
-        // @PathVariable Toma el valor de la URL y lo asigna al codigo
-        return productoService.buscarPorCodigo(codigo)
-                // si optional tiene el valor de la URL y lo asigna al codigo
-                .map(ResponseEntity::ok)
-                // Si Optional esta vacio, devuelve 404 NOT FOUND
-                .orElse(ResponseEntity.notFound().build());
+    @GetMapping  // Sin path adicional, responde a GET /productos
+    @ResponseBody  // El valor retornado se escribe directamente en el cuerpo de la respuesta (no es vista).
+    public ResponseEntity<List<Producto>> listarRest() {
+        // productoService.listarTodos() devuelve todos los productos.
+        // ResponseEntity.ok() construye una respuesta con código 200 y el cuerpo.
+        return ResponseEntity.ok(productoService.listarTodos());
     }
 
-    @GetMapping("/estado/{estado}")
-    public ResponseEntity<List<Producto>> buscarPorEstado(@PathVariable int estado) {
-        List<Producto> productos = productoService.buscarPorEstado(estado);
-        if (productos.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(productos);
-    }
-
-    // POST crear un nuevo producto
+    /**
+     * Crea un nuevo producto a partir de JSON enviado en el cuerpo de la petición.
+     * POST /productos
+     * @param producto objeto Producto deserializado automáticamente desde el JSON
+     * @return 201 Created con el producto guardado, o 400 Bad Request si hay error de validación.
+     */
     @PostMapping
-    public ResponseEntity<?> guardar(@RequestBody Producto producto) {
-        // @RequestBody: Toma el JSON del cuerpo y lo convierte a un objeto de tipo Producto
-        // <?> significa "tipo generico" puede ser un Producto o un String
+    @ResponseBody
+    public ResponseEntity<?> guardarRest(@RequestBody Producto producto) {
         try {
-            Producto nuevoProducto = productoService.guardar(producto);
-            // Intentamos guardar el producto pero puede lanzar una excepcion
-            // de IllegalArgumentException
-            return new ResponseEntity<>(nuevoProducto, HttpStatus.CREATED);
-            // 201 CREATED (mucho mas especifico que el 200 para la creacion de un producto)
+            // guardar() puede lanzar IllegalArgumentException (ej: nombre duplicado)
+            Producto guardado = productoService.guardar(producto);
+            // HttpStatus.CREATED = 201
+            return new ResponseEntity<>(guardado, HttpStatus.CREATED);
         } catch (IllegalArgumentException e) {
-            // si hay error de validaciones
+            // Retornamos el mensaje de error con código 400
             return ResponseEntity.badRequest().body(e.getMessage());
-            // 400 BAD REQUEST con mensaje de error
         }
     }
 
-    // DELETE eliminar un producto
-    @DeleteMapping("/{codigo}")
-    public ResponseEntity<Void> eliminar(@PathVariable Integer codigo) {
-        // ResponseEntity<Void>: No devuelve cuerpo en la respuesta
-        try {
-            if (!productoService.existePorCodigo(codigo)) {
-                return ResponseEntity.notFound().build();
-            }
-            productoService.eliminar(codigo);
-            return ResponseEntity.noContent().build();
-            // 204 NO CONTENT
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
-    // Actualizar producto a través de su código
+    /**
+     * Actualiza un producto existente.
+     * PUT /productos/{codigo}
+     * @param codigo identificador del producto (viene en la URL)
+     * @param producto datos actualizados en JSON
+     * @return 200 OK con producto actualizado, 404 si no existe, 400 si error.
+     */
     @PutMapping("/{codigo}")
-    public ResponseEntity<?> actualizar(@PathVariable Integer codigo, @RequestBody Producto producto) {
+    @ResponseBody
+    public ResponseEntity<?> actualizarRest(@PathVariable Long codigo, @RequestBody Producto producto) {
         try {
+            // Verificamos si el producto existe antes de actualizar.
             if (!productoService.existePorCodigo(codigo)) {
-                // Verificar si existe antes de poder actualizar
-                // 404 NOT FOUND
-                return ResponseEntity.notFound().build();
+                return ResponseEntity.notFound().build();  // 404 Not Found
             }
-            // Actualizar el producto pero esto puede lanzar una excepcion
-            Producto productoActualizado = productoService.actualizar(codigo, producto);
-            return ResponseEntity.ok(productoActualizado);
-            // 200 ok con el producto ya actualizado
+            // actualizar() retorna el producto actualizado.
+            return ResponseEntity.ok(productoService.actualizar(codigo, producto));
         } catch (IllegalArgumentException e) {
-            // Error cuando los datos son incorrectos
             return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (RuntimeException e) {
-            // Posiblemente cualquier otro error como: Producto no encontrado, etc.
-            // 404 NOT FOUND
+        }
+    }
+
+    /**
+     * Elimina un producto.
+     * DELETE /productos/{codigo}
+     * @param codigo identificador del producto a eliminar
+     * @return 204 No Content si éxito, 404 si no existe, 400 si error (ej: integridad referencial).
+     */
+    @DeleteMapping("/{codigo}")
+    @ResponseBody
+    public ResponseEntity<?> eliminarRest(@PathVariable Long codigo) {
+        // Verificamos existencia.
+        if (!productoService.existePorCodigo(codigo)) {
             return ResponseEntity.notFound().build();
         }
+        try {
+            productoService.eliminar(codigo);
+            return ResponseEntity.noContent().build();  // 204 No Content
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    // ========== ENDPOINTS PARA VISTAS WEB (HTML) ==========
+
+    /**
+     * Muestra la lista de productos en una página HTML.
+     * GET /productos/web
+     * @param model objeto Model de Spring para pasar atributos a la vista.
+     * @return nombre de la plantilla "productos/list"
+     */
+    @GetMapping("/web")
+    public String listarWeb(Model model) {
+        // Agrega al modelo la lista de productos bajo el nombre "productos"
+        model.addAttribute("productos", productoService.listarTodos());
+        return "productos/list";  // Se espera list.html en src/main/resources/templates/productos/
+    }
+
+    /**
+     * Muestra el formulario para crear un nuevo producto.
+     * GET /productos/web/nuevo
+     * @param model se añade un objeto Producto vacío para que el formulario lo enlace.
+     * @return "productos/form"
+     */
+    @GetMapping("/web/nuevo")
+    public String nuevoFormulario(Model model) {
+        // Se crea una instancia vacía para que Thymeleaf pueda usar sus propiedades en el formulario.
+        model.addAttribute("producto", new Producto());
+        return "productos/form";  // form.html en templates/productos/
+    }
+
+    /**
+     * Procesa el formulario de creación de producto.
+     * POST /productos/web/guardar
+     * @param producto objeto bindeado desde los campos del formulario (gracias a @ModelAttribute)
+     * @param redirectAttributes para mensajes flash de éxito/error
+     * @return redirección a la lista de productos
+     */
+    @PostMapping("/web/guardar")
+    public String guardarWeb(@ModelAttribute Producto producto, RedirectAttributes redirectAttributes) {
+        try {
+            productoService.guardar(producto);
+            // addFlashAttribute: el mensaje estará disponible solo en la siguiente petición (redirección)
+            redirectAttributes.addFlashAttribute("success", "Producto guardado correctamente.");
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+        }
+        return "redirect:/productos/web";  // Redirige a la lista después de guardar.
+    }
+
+    /**
+     * Muestra el formulario de edición precargado con los datos del producto existente.
+     * GET /productos/web/editar/{codigo}
+     * @param codigo ID del producto a editar
+     * @param model modelo donde se pone el producto encontrado
+     * @param redirectAttributes para errores si no se encuentra
+     * @return vista del formulario o redirección si hay error
+     */
+    @GetMapping("/web/editar/{codigo}")
+    public String editarFormulario(@PathVariable Long codigo, Model model, RedirectAttributes redirectAttributes) {
+        try {
+            // Buscar el producto; si no existe, lanza excepción.
+            Producto producto = productoService.buscarPorCodigo(codigo)
+                    .orElseThrow(() -> new IllegalArgumentException("Producto no encontrado"));
+            model.addAttribute("producto", producto);
+            return "productos/form";  // Reutilizamos la misma plantilla form.html
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            return "redirect:/productos/web";
+        }
+    }
+
+    /**
+     * Procesa la actualización de un producto desde el formulario web.
+     * POST /productos/web/actualizar/{codigo}
+     * @param codigo ID del producto a actualizar (viene en URL)
+     * @param producto objeto con los nuevos datos (bind desde formulario)
+     * @param redirectAttributes para mensajes flash
+     * @return redirección a la lista
+     */
+    @PostMapping("/web/actualizar/{codigo}")
+    public String actualizarWeb(@PathVariable Long codigo, @ModelAttribute Producto producto, RedirectAttributes redirectAttributes) {
+        try {
+            productoService.actualizar(codigo, producto);
+            redirectAttributes.addFlashAttribute("success", "Producto actualizado correctamente.");
+        } catch (RuntimeException e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+        }
+        return "redirect:/productos/web";
+    }
+
+    /**
+     * Elimina un producto desde la interfaz web.
+     * GET /productos/web/eliminar/{codigo}
+     * Nota: Se usa GET para simplificar (enlace directo), aunque lo correcto sería DELETE o POST.
+     * @param codigo ID del producto
+     * @param redirectAttributes mensajes flash
+     * @return redirección a la lista
+     */
+    @GetMapping("/web/eliminar/{codigo}")
+    public String eliminarWeb(@PathVariable Long codigo, RedirectAttributes redirectAttributes) {
+        try {
+            productoService.eliminar(codigo);
+            redirectAttributes.addFlashAttribute("success", "Producto eliminado correctamente.");
+        } catch (RuntimeException e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+        }
+        return "redirect:/productos/web";
     }
 }

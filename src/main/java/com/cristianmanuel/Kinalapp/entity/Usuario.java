@@ -1,6 +1,5 @@
 package com.cristianmanuel.Kinalapp.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 
 @Entity
@@ -8,28 +7,32 @@ import jakarta.persistence.*;
 public class Usuario {
 
     @Id
-    @Column(name = "codigo_usuario", nullable = false)
-    private Integer codigoUsuario;
+    @GeneratedValue(strategy = GenerationType.TABLE, generator = "tabla_usuario")
+    @TableGenerator(name = "tabla_usuario", table = "hibernate_sequences",
+            pkColumnName = "sequence_name", valueColumnName = "next_val",
+            pkColumnValue = "usuario_id", allocationSize = 1)
+    @Column(name = "codigo_usuario", nullable = false, columnDefinition = "INT")
+    private Long codigoUsuario;  // Identificador del usuario
 
     @Column(length = 45, nullable = false)
-    private String username;
+    private String username;  // Nombre de usuario para login
 
-    @Column(length = 45, nullable = false)
-    private String password;
+    @Column(length = 255, nullable = false)
+    private String password;  // Contraseña (debería ir encriptada)
 
     @Column(length = 60, nullable = false)
-    private String email;
+    private String email;  // Correo electrónico
 
     @Column(length = 45, nullable = false)
-    private String rol;
+    private String rol;  // Rol: ADMIN, VENDEDOR, etc.
 
-    @Column(nullable = false)
-    private Integer estado;
+    @Column(nullable = false, columnDefinition = "INT")
+    private Long estado;  // 1 = activo, 0 = inactivo
 
-    // Constructores
     public Usuario() {}
 
-    public Usuario(Integer codigoUsuario, String username, String password, String email, String rol, Integer estado) {
+    public Usuario(Long codigoUsuario, String username, String password,
+                   String email, String rol, Long estado) {
         this.codigoUsuario = codigoUsuario;
         this.username = username;
         this.password = password;
@@ -39,8 +42,8 @@ public class Usuario {
     }
 
     // Getters y Setters
-    public Integer getCodigoUsuario() { return codigoUsuario; }
-    public void setCodigoUsuario(Integer codigoUsuario) { this.codigoUsuario = codigoUsuario; }
+    public Long getCodigoUsuario() { return codigoUsuario; }
+    public void setCodigoUsuario(Long codigoUsuario) { this.codigoUsuario = codigoUsuario; }
 
     public String getUsername() { return username; }
     public void setUsername(String username) { this.username = username; }
@@ -54,6 +57,6 @@ public class Usuario {
     public String getRol() { return rol; }
     public void setRol(String rol) { this.rol = rol; }
 
-    public Integer getEstado() { return estado; }
-    public void setEstado(Integer estado) { this.estado = estado; }
+    public Long getEstado() { return estado; }
+    public void setEstado(Long estado) { this.estado = estado; }
 }

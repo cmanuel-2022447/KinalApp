@@ -6,32 +6,27 @@ import java.util.List;
 import java.util.Optional;
 
 public interface IClienteService {
-    // Interfaz: Es un contrato que dice QUÉ métodos debe tener
-    // cualquier servicio de Clientes, No tiene
-    // implementación, solo la definición de los métodos
 
-    /*
-     * readOnly = true: Lo que hace es optimizar la consulta no bloquea la BD
-     */
+    // readOnly = true: solo lectura, no bloquea la base de datos para escritura, mejora rendimiento
     @Transactional(readOnly = true)
-    List<Cliente> listarTodos();
-    // list<Cliente> lo que hace es devolver una lista de objetos de la entidad Cliente
+    List<Cliente> listarTodos();  // Recupera todos los clientes de la base de datos
 
-    // Metodo que guarda un Cliente en la BD
+    // Guarda un nuevo cliente o actualiza uno existente si ya tiene ID
     Cliente guardar(Cliente cliente);
 
-    // Optional - Contenedor que puede o no tener un valor evita el error de NullPointerException
-    Optional<Cliente> buscarPorDPI(Integer dpi);
+    // Optional evita NullPointerException: puede contener un Cliente o estar vacío
+    Optional<Cliente> buscarPorDPI(Long dpi);  // Busca por clave primaria (DPI)
 
+    // Filtra clientes por estado (1 = activo, 0 = inactivo)
     @Transactional(readOnly = true)
     List<Cliente> buscarPorEstado(int estado);
 
-    // Metodo que actualiza un Cliente
-    Cliente actualizar(Integer dpi, Cliente cliente);
+    // Actualiza los datos de un cliente existente identificado por su DPI
+    Cliente actualizar(Long dpi, Cliente cliente);
 
-    // Metodo de tipo void para eliminar a un Cliente (no retorna ningún dato)
-    void eliminar(Integer dpi);
+    // Elimina un cliente por su DPI (void = no retorna datos)
+    void eliminar(Long dpi);
 
-    // boolean - Retorna true si existe, false si no existe
-    boolean existePorDPI(Integer dpi);
+    // Verifica existencia de un cliente por DPI (útil antes de operaciones)
+    boolean existePorDPI(Long dpi);
 }

@@ -12,37 +12,42 @@ import java.util.List;
 public class Ventas {
 
     @Id
-    @Column(name = "codigo_venta", nullable = false)
-    private Integer codigoVenta;
+    @GeneratedValue(strategy = GenerationType.TABLE, generator = "tabla_venta")
+    @TableGenerator(name = "tabla_venta", table = "hibernate_sequences",
+            pkColumnName = "sequence_name", valueColumnName = "next_val",
+            pkColumnValue = "venta_id", allocationSize = 1)
+    @Column(name = "codigo_venta", nullable = false, columnDefinition = "INT")
+    private Long codigoVenta;  // Número único de venta
 
     @Column(name = "fecha_venta", nullable = false)
-    private LocalDate fechaVenta;
+    private LocalDate fechaVenta;  // Fecha en que se realizó la venta
 
     @Column(precision = 10, scale = 2, nullable = false)
-    private BigDecimal total;
+    private BigDecimal total;  // Suma total de la venta (acumulado de los subtotales de detalles)
 
-    @Column(nullable = false)
-    private Integer estado;
+    @Column(nullable = false, columnDefinition = "INT")
+    private Long estado;  // Estado de la venta (completada, anulada, etc.)
 
+    // Relación muchos a uno con Cliente: una venta pertenece a un cliente
     @ManyToOne
     @JoinColumn(name = "clientes_dpi_cliente", referencedColumnName = "dpi_cliente", nullable = false)
     @JsonIgnoreProperties({"nombreCliente", "apellidoCliente", "direccion", "estado"})
     private Cliente cliente;
 
+    // Relación muchos a uno con Usuario: una venta es registrada por un usuario
     @ManyToOne
     @JoinColumn(name = "usuarios_codigo_usuario", referencedColumnName = "codigo_usuario", nullable = false)
     @JsonIgnoreProperties({"username", "password", "email", "rol", "estado"})
     private Usuario usuario;
 
-    // Relación con DetalleVenta - NO se muestra en la respuesta
+    // Relación uno a muchos con DetalleVenta: una venta tiene muchos detalles
     @OneToMany(mappedBy = "venta", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonIgnore
+    @JsonIgnore  // Evita la serialización de la lista de detalles para no generar ciclos
     private List<DetalleVenta> detallesVenta;
 
-    // Constructores
     public Ventas() {}
 
-    public Ventas(Integer codigoVenta, LocalDate fechaVenta, BigDecimal total, Integer estado, Cliente cliente, Usuario usuario) {
+    public Ventas(Long codigoVenta, LocalDate fechaVenta, BigDecimal total, Long estado, Cliente cliente, Usuario usuario) {
         this.codigoVenta = codigoVenta;
         this.fechaVenta = fechaVenta;
         this.total = total;
@@ -52,8 +57,8 @@ public class Ventas {
     }
 
     // Getters y Setters
-    public Integer getCodigoVenta() { return codigoVenta; }
-    public void setCodigoVenta(Integer codigoVenta) { this.codigoVenta = codigoVenta; }
+    public Long getCodigoVenta() { return codigoVenta; }
+    public void setCodigoVenta(Long codigoVenta) { this.codigoVenta = codigoVenta; }
 
     public LocalDate getFechaVenta() { return fechaVenta; }
     public void setFechaVenta(LocalDate fechaVenta) { this.fechaVenta = fechaVenta; }
@@ -61,8 +66,8 @@ public class Ventas {
     public BigDecimal getTotal() { return total; }
     public void setTotal(BigDecimal total) { this.total = total; }
 
-    public Integer getEstado() { return estado; }
-    public void setEstado(Integer estado) { this.estado = estado; }
+    public Long getEstado() { return estado; }
+    public void setEstado(Long estado) { this.estado = estado; }
 
     public Cliente getCliente() { return cliente; }
     public void setCliente(Cliente cliente) { this.cliente = cliente; }
