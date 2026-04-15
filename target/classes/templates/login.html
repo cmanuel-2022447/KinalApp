@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión - KinalApp</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { font-size: 16px; -webkit-font-smoothing: antialiased; }
+        body { font-family: 'Nunito', system-ui, sans-serif; min-height: 100vh; }
+        .login-page {
+            min-height: 100vh; display: flex;
+            align-items: center; justify-content: center;
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #1d4ed8 100%);
+            padding: 24px;
+        }
+        .login-box {
+            background: #fff; border-radius: 16px;
+            padding: 40px 36px; width: 100%; max-width: 400px;
+            box-shadow: 0 8px 24px rgba(0,0,0,.18);
+        }
+        .login-logo { text-align: center; margin-bottom: 28px; }
+        .login-logo p  { font-size: .82rem; color: #64748b; margin-top: 3px; }
+        .login-box h2  { font-size: 1.1rem; font-weight: 700; margin-bottom: 20px; color: #0f172a; }
+        .form-group { margin-bottom: 16px; }
+        .form-group label {
+            display: block; font-size: .78rem; font-weight: 700;
+            margin-bottom: 6px; color: #64748b;
+            text-transform: uppercase; letter-spacing: .04em;
+        }
+        .form-group input {
+            width: 100%; padding: 10px 13px;
+            border: 1.5px solid #e2e8f0; border-radius: 8px;
+            font-size: .875rem; font-family: inherit; color: #0f172a;
+            background: #fff; outline: none; font-weight: 500;
+            transition: border-color .2s, box-shadow .2s;
+        }
+        .form-group input:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37,99,235,.12);
+        }
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 100%; padding: 11px; border-radius: 8px;
+            font-size: .9rem; font-weight: 700; text-decoration: none;
+            cursor: pointer; border: none; font-family: inherit;
+            margin-top: 6px; transition: opacity .2s;
+        }
+        .btn:hover { opacity: .88; }
+        .btn-primary { background: #2563eb; color: #fff; }
+        .alert {
+            padding: 11px 16px; border-radius: 8px; margin-bottom: 16px;
+            font-size: .875rem; font-weight: 600;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .alert-success { background: #ecfdf5; color: #059669; border-left: 4px solid #059669; }
+        .alert-error   { background: #fef2f2; color: #dc2626; border-left: 4px solid #dc2626; }
+        .login-divider { text-align: center; position: relative; margin: 20px 0; }
+        .login-divider::before {
+            content: ''; position: absolute;
+            top: 50%; left: 0; right: 0; height: 1px; background: #e2e8f0;
+        }
+        .login-divider span {
+            position: relative; background: #fff;
+            padding: 0 12px; font-size: .75rem; color: #64748b; font-weight: 600;
+        }
+        .login-link { text-align: center; margin-top: 16px; font-size: .85rem; color: #64748b; }
+        .login-link a { color: #2563eb; font-weight: 700; text-decoration: none; }
+        .login-link a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+<div class="login-page">
+    <div class="login-box">
+        <div class="login-logo">
+            <img src="/css/logo.png" alt="KinalApp Logo" style="height:80px;width:auto;object-fit:contain;margin:0 auto 12px;display:block;">
+            <p>Sistema de Ventas</p>
+        </div>
+        <h2>Iniciar Sesión</h2>
+
+        <!-- Mensajes flash -->
+        <div th:if="${error}"   class="alert alert-error">⚠️ <span th:text="${error}"></span></div>
+        <div th:if="${success}" class="alert alert-success">✅ <span th:text="${success}"></span></div>
+
+        <!-- Formulario POST al LoginController -->
+        <form th:action="@{/login}" method="post">
+            <div class="form-group">
+                <label for="username">Usuario</label>
+                <input type="text" id="username" name="username" placeholder="Ingresa tu usuario" required autofocus>
+            </div>
+            <div class="form-group">
+                <label for="password">Contraseña</label>
+                <input type="password" id="password" name="password" placeholder="••••••••" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Ingresar →</button>
+        </form>
+        <div class="login-divider"><span>¿nuevo aquí?</span></div>
+        <div class="login-link">¿No tienes cuenta? <a th:href="@{/registro}">Regístrate gratis</a></div>
+    </div>
+</div>
+</body>
+</html>
