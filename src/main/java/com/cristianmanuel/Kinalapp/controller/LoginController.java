@@ -29,7 +29,6 @@ public class LoginController {
     }
 
     /**
-     * Muestra el formulario de inicio de sesión.
      * Se ejecuta cuando el usuario hace GET a /login.
      * @return el nombre de la vista "login" (login.html en templates/)
      */
