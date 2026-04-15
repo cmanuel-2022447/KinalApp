@@ -9,10 +9,7 @@ import java.math.BigDecimal;
 public class DetalleVenta {
 
     @Id  // Clave primaria
-    @GeneratedValue(strategy = GenerationType.TABLE, generator = "tabla_detalle")
-    @TableGenerator(name = "tabla_detalle", table = "hibernate_sequences",
-            pkColumnName = "sequence_name", valueColumnName = "next_val",
-            pkColumnValue = "detalle_id", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "codigo_detalle_venta", nullable = false, columnDefinition = "INT")
     private Long codigoDetalleVenta;  // Identificador único del detalle de venta
 
