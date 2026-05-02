@@ -62,7 +62,7 @@ public class SecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        // Encoder sin cifrado, solo para desarrollo
+
         return NoOpPasswordEncoder.getInstance();
     }
 }
