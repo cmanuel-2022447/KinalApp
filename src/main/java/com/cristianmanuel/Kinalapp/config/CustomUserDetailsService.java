@@ -33,7 +33,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         return User.builder()
                 .username(usuario.getUsername())
                 .password(usuario.getPassword())
-                .roles(usuario.getRol()) // Tu BD tiene "ADMIN", Security agrega "ROLE_" solo
+                .roles(usuario.getRol()) 
                 .build();
     }
 }
