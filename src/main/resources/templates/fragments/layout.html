@@ -445,15 +445,14 @@
            12. PIE DE PÁGINA (FOOTER)
            ============================================ */
         footer {
-        background: #fff;
-        border-top: 1px solid #e9eef6;
-        color: #94a3b8;
-        text-align: center;
-        padding: 14px;
-        font-size: .75rem;
-        font-weight: 600;
-    }
-
+            background: #fff;
+            border-top: 1px solid #e2e8f0;
+            color: #64748b;
+            text-align: center;
+            padding: 14px;
+            font-size: .78rem;
+            font-weight: 600;
+        }
 
         /* ============================================
            13. RESPONSIVE (PANTALLAS PEQUEÑAS)
@@ -539,7 +538,9 @@
 
     <!-- Área de usuario (botón cerrar sesión) -->
     <div class="navbar-user">
-        <a th:href="@{/logout}" class="btn-logout">🚪 Salir</a>
+        <form th:action="@{/logout}" method="post" style="margin:0;">
+            <button type="submit" class="btn-logout">🚪 Salir</button>
+        </form>
     </div>
 </nav>
 
@@ -554,7 +555,7 @@
      PIE DE PÁGINA (FOOTER)
      ============================================ -->
 <footer>
-    <p>&copy; 2026 <span>KinalApp</span> — Sistema de Ventas</p>
+    <p>&copy; 2025 KinalApp — Sistema de Ventas</p>
 </footer>
 
 </body>

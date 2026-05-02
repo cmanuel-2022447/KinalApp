@@ -9,22 +9,22 @@ public class Usuario {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "codigo_usuario", nullable = false, columnDefinition = "INT")
-    private Long codigoUsuario;  // Identificador del usuario
+    private Long codigoUsuario;
 
     @Column(length = 45, nullable = false)
-    private String username;  // Nombre de usuario para login
+    private String username;
 
     @Column(length = 255, nullable = false)
-    private String password;  // Contraseña (debería ir encriptada)
+    private String password;
 
     @Column(length = 60, nullable = false)
-    private String email;  // Correo electrónico
+    private String email;
 
     @Column(length = 45, nullable = false)
-    private String rol;  // Rol: ADMIN, VENDEDOR, etc.
+    private String rol;
 
     @Column(nullable = false, columnDefinition = "INT")
-    private Long estado;  // 1 = activo, 0 = inactivo
+    private Long estado;
 
     public Usuario() {}
 
@@ -38,7 +38,6 @@ public class Usuario {
         this.estado = estado;
     }
 
-    // Getters y Setters
     public Long getCodigoUsuario() { return codigoUsuario; }
     public void setCodigoUsuario(Long codigoUsuario) { this.codigoUsuario = codigoUsuario; }
 
