@@ -238,7 +238,9 @@
         <li><a th:href="@{/detalleventa/web}">🧾 Det. Ventas</a></li>
     </ul>
     <div class="navbar-user">
-        <a th:href="@{/logout}" class="btn-logout">🚪 Salir</a>
+        <form th:action="@{/logout}" method="post" style="margin:0;">
+            <button type="submit" class="btn-logout">🚪 Salir</button>
+        </form>
     </div>
 </nav>
 
@@ -283,6 +285,6 @@
     </div>
 </div>
 
-<footer><p>&copy; 2026 KinalApp — Sistema de Ventas</p></footer>
+<footer><p>&copy; 2025 KinalApp — Sistema de Ventas</p></footer>
 </body>
 </html>

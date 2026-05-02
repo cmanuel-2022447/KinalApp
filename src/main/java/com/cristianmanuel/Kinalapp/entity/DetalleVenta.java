@@ -4,40 +4,37 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 
-@Entity  // Indica que esta clase es una entidad JPA (se mapea a una tabla)
-@Table(name = "DetalleVenta")  // Nombre de la tabla en la base de datos
+@Entity
+@Table(name = "DetalleVenta")
 public class DetalleVenta {
 
-    @Id  // Clave primaria
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "codigo_detalle_venta", nullable = false, columnDefinition = "INT")
-    private Long codigoDetalleVenta;  // Identificador único del detalle de venta
+    private Long codigoDetalleVenta;
 
     @Column(nullable = false, columnDefinition = "INT")
-    private Long cantidad;  // Cantidad de productos vendidos en este detalle
+    private Long cantidad;
 
     @Column(name = "precio_unitario", precision = 10, scale = 2, nullable = false)
-    private BigDecimal precioUnitario;  // Precio por unidad al momento de la venta
+    private BigDecimal precioUnitario;
 
     @Column(precision = 10, scale = 2, nullable = false)
-    private BigDecimal subtotal;  // Calculado como cantidad * precioUnitario
+    private BigDecimal subtotal;
 
     @Column(nullable = false, columnDefinition = "INT")
-    private Long estado;  // Estado del detalle (activo, anulado, etc.)
+    private Long estado;
 
-    // Relación muchos a uno con Producto: cada detalle pertenece a un producto
     @ManyToOne
     @JoinColumn(name = "productos_codigo_producto", referencedColumnName = "codigo_producto", nullable = false)
-    @JsonIgnoreProperties({"nombreProducto", "precio", "stock", "estado"})  // Evita bucles infinitos al serializar a JSON
+    @JsonIgnoreProperties({"nombreProducto", "precio", "stock", "estado"})
     private Producto producto;
 
-    // Relación muchos a uno con Ventas: cada detalle pertenece a una venta
     @ManyToOne
     @JoinColumn(name = "ventas_codigo_venta", referencedColumnName = "codigo_venta", nullable = false)
     @JsonIgnoreProperties({"fechaVenta", "total", "estado", "cliente", "usuario", "detallesVenta"})
     private Ventas venta;
 
-    // Constructores
     public DetalleVenta() {}
 
     public DetalleVenta(Long codigoDetalleVenta, Long cantidad, BigDecimal precioUnitario,
@@ -51,7 +48,6 @@ public class DetalleVenta {
         this.venta = venta;
     }
 
-    // Getters y Setters
     public Long getCodigoDetalleVenta() { return codigoDetalleVenta; }
     public void setCodigoDetalleVenta(Long codigoDetalleVenta) { this.codigoDetalleVenta = codigoDetalleVenta; }
 

@@ -14,32 +14,29 @@ public class Ventas {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "codigo_venta", nullable = false, columnDefinition = "INT")
-    private Long codigoVenta;  // Número único de venta
+    private Long codigoVenta;
 
     @Column(name = "fecha_venta", nullable = false)
-    private LocalDate fechaVenta;  // Fecha en que se realizó la venta
+    private LocalDate fechaVenta;
 
     @Column(precision = 10, scale = 2, nullable = false)
-    private BigDecimal total;  // Suma total de la venta (acumulado de los subtotales de detalles)
+    private BigDecimal total;
 
     @Column(nullable = false, columnDefinition = "INT")
-    private Long estado;  // Estado de la venta (completada, anulada, etc.)
+    private Long estado;
 
-    // Relación muchos a uno con Cliente: una venta pertenece a un cliente
     @ManyToOne
     @JoinColumn(name = "clientes_dpi_cliente", referencedColumnName = "dpi_cliente", nullable = false)
     @JsonIgnoreProperties({"nombreCliente", "apellidoCliente", "direccion", "estado"})
     private Cliente cliente;
 
-    // Relación muchos a uno con Usuario: una venta es registrada por un usuario
     @ManyToOne
     @JoinColumn(name = "usuarios_codigo_usuario", referencedColumnName = "codigo_usuario", nullable = false)
     @JsonIgnoreProperties({"username", "password", "email", "rol", "estado"})
     private Usuario usuario;
 
-    // Relación uno a muchos con DetalleVenta: una venta tiene muchos detalles
     @OneToMany(mappedBy = "venta", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonIgnore  // Evita la serialización de la lista de detalles para no generar ciclos
+    @JsonIgnore
     private List<DetalleVenta> detallesVenta;
 
     public Ventas() {}
@@ -53,7 +50,6 @@ public class Ventas {
         this.usuario = usuario;
     }
 
-    // Getters y Setters
     public Long getCodigoVenta() { return codigoVenta; }
     public void setCodigoVenta(Long codigoVenta) { this.codigoVenta = codigoVenta; }
 

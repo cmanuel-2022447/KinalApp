@@ -10,19 +10,19 @@ public class Producto {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "codigo_producto", nullable = false, columnDefinition = "INT")
-    private Long codigoProducto;  // ID único del producto
+    private Long codigoProducto;
 
     @Column(name = "nombre_producto", length = 60, nullable = false)
-    private String nombreProducto;  // Nombre del producto
+    private String nombreProducto;
 
     @Column(precision = 10, scale = 2, nullable = false)
-    private BigDecimal precio;  // Precio actual del producto
+    private BigDecimal precio;
 
     @Column(nullable = false, columnDefinition = "INT")
-    private Long stock;  // Cantidad disponible en inventario
+    private Long stock;
 
     @Column(nullable = false, columnDefinition = "INT")
-    private Long estado;  // 1 = activo, 0 = inactivo
+    private Long estado;
 
     public Producto() {}
 
@@ -34,7 +34,6 @@ public class Producto {
         this.estado = estado;
     }
 
-    // Getters y Setters
     public Long getCodigoProducto() { return codigoProducto; }
     public void setCodigoProducto(Long codigoProducto) { this.codigoProducto = codigoProducto; }
 

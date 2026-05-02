@@ -3,9 +3,10 @@ package com.cristianmanuel.Kinalapp.controller;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+
 /**
- * Controlador para servir el menú principal de la aplicación.
- * Todas las rutas bajo /web están protegidas por el LoginInterceptor..
+ * Controlador sencillo para servir el menú principal de la aplicación.
+ * Todas las rutas bajo /web están protegidas por el LoginInterceptor.
  * Si el usuario no ha iniciado sesión, será redirigido automáticamente al login.
  */
 @Controller  // Marca esta clase como un bean de Spring MVC.

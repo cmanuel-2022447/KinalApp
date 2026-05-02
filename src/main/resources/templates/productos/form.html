@@ -8,6 +8,10 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     /* ============================================
+       1. VARIABLES GLOBALES (opcional, se usan valores directos)
+       ============================================ */
+
+    /* ============================================
        2. RESET Y ESTILOS BASE
        ============================================ */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -273,7 +277,9 @@
     <li><a th:href="@{/detalleventa/web}">🧾 Det. Ventas</a></li>
   </ul>
   <div class="navbar-user">
-    <a th:href="@{/logout}" class="btn-logout">🚪 Salir</a>
+    <form th:action="@{/logout}" method="post" style="margin:0;">
+      <button type="submit" class="btn-logout">🚪 Salir</button>
+    </form>
   </div>
 </nav>
 

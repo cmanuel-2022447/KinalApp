@@ -10,7 +10,6 @@ public class Cliente {
 
     @Id
     // @Id indica que este campo es la llave primaria de la tabla
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "dpi_cliente", nullable = false, columnDefinition = "INT")
     // nullable = false: el campo no puede ser nulo en la BD
     // columnDefinition = "INT": define el tipo de dato en la BD

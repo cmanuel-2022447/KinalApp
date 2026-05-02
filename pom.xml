@@ -7,14 +7,13 @@
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>3.2.0</version>
-		<!-- Se corrige la version a 3.2.0 compatible con Java 21 -->
 		<relativePath/>
 	</parent>
 
 	<groupId>com.cristianmanuel</groupId>
 	<artifactId>Kinalapp</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>Kinalapp</name>
+	<n>Kinalapp</n>
 	<description>Kinal Customer Managment Application</description>
 
 	<properties>
@@ -35,10 +34,22 @@
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
 
-		<!-- SECURITY: para proteger los endpoints -->
+		<!-- Thymeleaf: motor de plantillas para las vistas HTML -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-thymeleaf</artifactId>
+		</dependency>
+
+		<!-- ✅ Spring Security -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
+
+		<!-- ✅ Thymeleaf + Security (para sec:authorize en HTML) -->
+		<dependency>
+			<groupId>org.thymeleaf.extras</groupId>
+			<artifactId>thymeleaf-extras-springsecurity6</artifactId>
 		</dependency>
 
 		<!-- MySQL: conector con la base de datos -->
@@ -52,13 +63,6 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
-			<scope>test</scope>
-		</dependency>
-
-		<!-- SECURITY TEST: para pruebas de seguridad -->
-		<dependency>
-			<groupId>org.springframework.security</groupId>
-			<artifactId>spring-security-test</artifactId>
 			<scope>test</scope>
 		</dependency>
 
