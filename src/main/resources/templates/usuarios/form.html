@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Formulario Usuario - KinalApp</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    /* ============================================
+       1. VARIABLES GLOBALES
+       ============================================ */
+    :root {
+        --primary: #2563eb;
+        --primary-dark: #1d4ed8;
+        --success: #059669;
+        --success-light: #ecfdf5;
+        --danger: #dc2626;
+        --danger-light: #fef2f2;
+        --gray-100: #f1f5f9;
+        --gray-200: #e2e8f0;
+        --gray-500: #64748b;
+        --gray-700: #334155;
+        --gray-900: #0f172a;
+        --white: #ffffff;
+        --radius: 8px;
+        --radius-lg: 12px;
+        --shadow-sm: 0 1px 3px rgba(0,0,0,.08);
+        --transition: .2s ease;
+    }
+
+    /* ============================================
+       2. RESET Y ESTILOS BASE
+       ============================================ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; -webkit-font-smoothing: antialiased; }
+    body {
+        font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+        background: #f0f4ff;
+        color: #0f172a;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* ============================================
+       3. BARRA DE NAVEGACIÓN (NAVBAR)
+       ============================================ */
+    .navbar {
+        background: linear-gradient(135deg, #0f172a 0%, #1e2d4a 100%);
+        height: 62px;
+        padding: 0 28px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        position: sticky;
+        top: 0;
+        z-index: 200;
+        box-shadow: 0 2px 16px rgba(15,23,42,.4);
+        border-bottom: 1px solid rgba(255,255,255,.06);
+    }
+    .navbar-brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-decoration: none;
+        color: #fff;
+        font-size: 1.1rem;
+        font-weight: 800;
+        letter-spacing: -.03em;
+        flex-shrink: 0;
+    }
+    .navbar-nav {
+        display: flex;
+        align-items: center;
+        gap: 2px;
+        list-style: none;
+    }
+    .navbar-nav a {
+        color: rgba(255,255,255,.6);
+        text-decoration: none;
+        padding: 6px 11px;
+        border-radius: 8px;
+        font-size: .78rem;
+        font-weight: 600;
+        transition: background .18s, color .18s;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        white-space: nowrap;
+    }
+    .navbar-nav a:hover {
+        background: rgba(255,255,255,.09);
+        color: #fff;
+    }
+    .navbar-nav a.active {
+        background: rgba(59,130,246,.25);
+        color: #93c5fd;
+        border: 1px solid rgba(59,130,246,.3);
+    }
+    .navbar-user {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-shrink: 0;
+    }
+    .btn-logout {
+        background: rgba(239,68,68,.15);
+        color: #fca5a5;
+        border: 1px solid rgba(239,68,68,.25);
+        padding: 5px 12px;
+        border-radius: 8px;
+        font-size: .78rem;
+        font-weight: 700;
+        text-decoration: none;
+        transition: background .18s;
+    }
+
+    /* ============================================
+       4. CONTENEDOR PRINCIPAL
+       ============================================ */
+    .page-content {
+        flex: 1;
+        padding: 28px 32px;
+        max-width: 1200px;
+        width: 100%;
+        margin: 0 auto;
+    }
+
+    /* ============================================
+       5. ENCABEZADO DE PÁGINA
+       ============================================ */
+    .page-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 22px;
+    }
+    .page-header h2 {
+        font-size: 1.45rem;
+        font-weight: 800;
+        color: #0f172a;
+        letter-spacing: -.03em;
+    }
+
+    /* ============================================
+       6. TARJETA DEL FORMULARIO
+       ============================================ */
+    .form-card {
+        background: #fff;
+        border-radius: 14px;
+        box-shadow: 0 1px 4px rgba(0,0,0,.06), 0 0 0 1px rgba(0,0,0,.05);
+        padding: 30px 34px;
+        max-width: 560px;
+    }
+    .form-group {
+        margin-bottom: 16px;
+    }
+    .form-group label {
+        display: block;
+        font-size: .75rem;
+        font-weight: 700;
+        margin-bottom: 6px;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: .05em;
+    }
+    .form-group input,
+    .form-group select {
+        width: 100%;
+        padding: 10px 13px;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: .875rem;
+        font-family: inherit;
+        color: #0f172a;
+        background: #fff;
+        transition: border-color .2s, box-shadow .2s;
+        outline: none;
+        font-weight: 500;
+    }
+    .form-group input:focus,
+    .form-group select:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59,130,246,.12);
+    }
+    .form-group input[readonly] {
+        background: #f1f5f9;
+        color: #64748b;
+        cursor: not-allowed;
+    }
+    .form-group select {
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%2364748b'%3E%3Cpath fill-rule='evenodd' d='M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 12px center;
+        background-size: 16px;
+        padding-right: 36px;
+    }
+    .form-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 24px;
+        padding-top: 20px;
+        border-top: 1px solid #f1f5f9;
+    }
+    .hint {
+        font-size: .73rem;
+        color: #94a3b8;
+        margin-top: 4px;
+    }
+
+    /* ============================================
+       7. BOTONES
+       ============================================ */
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-size: .84rem;
+        font-weight: 700;
+        text-decoration: none;
+        cursor: pointer;
+        border: none;
+        transition: opacity .18s, transform .18s;
+        font-family: inherit;
+    }
+    .btn:hover {
+        opacity: .85;
+        transform: translateY(-1px);
+    }
+    .btn-success {
+        background: #059669;
+        color: #fff;
+    }
+    .btn-secondary {
+        background: #e2e8f0;
+        color: #475569;
+    }
+
+    /* ============================================
+       8. ALERTAS
+       ============================================ */
+    .alert {
+        padding: 12px 16px;
+        border-radius: 10px;
+        margin-bottom: 18px;
+        font-size: .875rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .alert-error {
+        background: #fef2f2;
+        color: #dc2626;
+        border-left: 4px solid #dc2626;
+    }
+
+    /* ============================================
+       9. PIE DE PÁGINA
+       ============================================ */
+    footer {
+        background: #fff;
+        border-top: 1px solid #e9eef6;
+        color: #94a3b8;
+        text-align: center;
+        padding: 14px;
+        font-size: .75rem;
+        font-weight: 600;
+    }
+
+    /* ============================================
+       10. RESPONSIVE
+       ============================================ */
+    @media (max-width: 800px) {
+        .navbar {
+            padding: 0 14px;
+            height: auto;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding-block: 10px;
+        }
+        .navbar-nav {
+            gap: 1px;
+            flex-wrap: wrap;
+        }
+        .navbar-nav a {
+            font-size: .72rem;
+            padding: 5px 7px;
+        }
+        .page-content {
+            padding: 16px;
+        }
+        .form-card {
+            padding: 20px;
+        }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ========== BARRA DE NAVEGACIÓN ========== -->
+<nav class="navbar">
+  <a class="navbar-brand" th:href="@{/web/menu}">
+    <img src="/css/logo.png" alt="KinalApp Logo" style="height:48px;width:auto;object-fit:contain;">
+  </a>
+  <ul class="navbar-nav">
+    <li><a th:href="@{/web/menu}">🏠 Inicio</a></li>
+    <li><a th:href="@{/clientes/web}">👥 Clientes</a></li>
+    <li><a th:href="@{/productos/web}">📦 Productos</a></li>
+    <li><a th:href="@{/usuarios/web}" class="active">👤 Usuarios</a></li>
+    <li><a th:href="@{/ventas/web}">💰 Ventas</a></li>
+    <li><a th:href="@{/detalleventa/web}">🧾 Det. Ventas</a></li>
+  </ul>
+  <div class="navbar-user">
+    <form th:action="@{/logout}" method="post" style="margin:0;">
+      <button type="submit" class="btn-logout">🚪 Salir</button>
+    </form>
+  </div>
+</nav>
+
+<!-- ========== CONTENIDO PRINCIPAL ========== -->
+<div class="page-content">
+  <div class="page-header">
+    <!-- Título dinámico: Nuevo o Editar según exista código -->
+    <h2 th:text="${usuario.codigoUsuario == null} ? '➕ Nuevo Usuario' : '✏️ Editar Usuario'">Formulario</h2>
+  </div>
+  <div class="form-card">
+    <div th:if="${error}" class="alert alert-error">⚠️ <span th:text="${error}"></span></div>
+    <form th:action="${usuario.codigoUsuario == null} ? @{/usuarios/web/guardar} : @{/usuarios/web/actualizar/{codigo}(codigo=${usuario.codigoUsuario})}"
+          th:object="${usuario}" method="post">
+
+      <!-- Código de usuario (solo lectura cuando se edita) -->
+      <div class="form-group" th:if="${usuario.codigoUsuario != null}">
+        <label>🔑 Código de Usuario</label>
+        <input type="text" th:value="${usuario.codigoUsuario}" readonly>
+        <p class="hint">El código es asignado automáticamente y no se puede modificar.</p>
+      </div>
+
+      <!-- Nombre de usuario -->
+      <div class="form-group">
+        <label>👤 Nombre de Usuario</label>
+        <input type="text" th:field="*{username}" placeholder="Ej: jperez" required>
+      </div>
+
+      <!-- Contraseña -->
+      <div class="form-group">
+        <label>🔒 Contraseña</label>
+        <input type="password" th:field="*{password}" placeholder="••••••••" required>
+        <p class="hint" th:if="${usuario.codigoUsuario != null}">Escribe la nueva contraseña. Se encriptará automáticamente.</p>
+      </div>
+
+      <!-- Correo electrónico -->
+      <div class="form-group">
+        <label>📧 Correo Electrónico</label>
+        <input type="email" th:field="*{email}" placeholder="correo@ejemplo.com" required>
+      </div>
+
+      <!-- Rol (Usuario o Administrador) -->
+      <div class="form-group">
+        <label>🎭 Rol</label>
+        <select th:field="*{rol}" required>
+          <option value="">-- Seleccione un rol --</option>
+          <option value="USER">Usuario</option>
+          <option value="ADMIN">Administrador</option>
+        </select>
+      </div>
+
+      <!-- Estado (activo/inactivo) -->
+      <div class="form-group">
+        <label>🔘 Estado</label>
+        <select th:field="*{estado}">
+          <option value="1">Activo</option>
+          <option value="0">Inactivo</option>
+        </select>
+      </div>
+
+      <!-- Botones de acción -->
+      <div class="form-actions">
+        <button type="submit" class="btn btn-success">💾 Guardar</button>
+        <a th:href="@{/usuarios/web}" class="btn btn-secondary">← Cancelar</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ========== PIE DE PÁGINA ========== -->
+<footer><p>&copy; 2025 KinalApp — Sistema de Ventas</p></footer>
+
+</body>
+</html>
