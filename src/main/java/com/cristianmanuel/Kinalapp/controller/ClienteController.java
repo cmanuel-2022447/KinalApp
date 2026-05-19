@@ -71,13 +71,13 @@ public class ClienteController {
     @GetMapping("/web")
     public String listarWeb(Model model) {
         model.addAttribute("clientes", clienteService.listarTodos());
-        return "clientes/list";
+        return "clientes/clientes";
     }
 
     @GetMapping("/web/nuevo")
     public String nuevoFormulario(Model model) {
         model.addAttribute("cliente", new Cliente());
-        return "clientes/form";
+        return "clientes/clientes";
     }
 
     @PostMapping("/web/guardar")
@@ -97,7 +97,7 @@ public class ClienteController {
             Cliente cliente = clienteService.buscarPorDPI(dpi)
                     .orElseThrow(() -> new IllegalArgumentException("Cliente no encontrado"));
             model.addAttribute("cliente", cliente);
-            return "clientes/form";
+            return "clientes/clientes";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
             return "redirect:/clientes/web";
