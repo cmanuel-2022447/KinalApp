@@ -151,7 +151,7 @@ public class DetalleVentaController {
     @GetMapping("/web")
     public String listarWeb(Model model) {
         model.addAttribute("detalles", detalleVentaService.listarTodos());
-        return "detalleventa/list";
+        return "detalleventa/detalleventa";
     }
 
     /**
@@ -164,7 +164,7 @@ public class DetalleVentaController {
         model.addAttribute("detalle", new DetalleVenta());
         model.addAttribute("productos", productoService.listarTodos());
         model.addAttribute("ventas", ventasService.listarTodos());
-        return "detalleventa/form";
+        return "detalleventa/detalleventa";
     }
 
     /**
@@ -197,7 +197,7 @@ public class DetalleVentaController {
             model.addAttribute("detalle", detalle);
             model.addAttribute("productos", productoService.listarTodos());
             model.addAttribute("ventas", ventasService.listarTodos());
-            return "detalleventa/form";
+            return "detalleventa/detalleventa";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
             return "redirect:/detalleventa/web";

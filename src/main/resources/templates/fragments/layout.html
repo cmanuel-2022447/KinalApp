@@ -500,37 +500,37 @@
     <ul class="navbar-nav">
         <li>
             <a th:href="@{/web/menu}"
-               th:classappend="${#httpServletRequest.requestURI == '/web/menu'} ? 'nav-active'">
+               th:classappend="${currentUri == '/web/menu'} ? 'nav-active'">
                 🏠 Inicio
             </a>
         </li>
         <li>
             <a th:href="@{/clientes/web}"
-               th:classappend="${#strings.startsWith(#httpServletRequest.requestURI, '/clientes')} ? 'nav-active'">
+               th:classappend="${#strings.startsWith(currentUri, '/clientes')} ? 'nav-active'">
                 👥 Clientes
             </a>
         </li>
         <li>
             <a th:href="@{/productos/web}"
-               th:classappend="${#strings.startsWith(#httpServletRequest.requestURI, '/productos')} ? 'nav-active'">
+               th:classappend="${#strings.startsWith(currentUri, '/productos')} ? 'nav-active'">
                 📦 Productos
             </a>
         </li>
         <li>
             <a th:href="@{/usuarios/web}"
-               th:classappend="${#strings.startsWith(#httpServletRequest.requestURI, '/usuarios')} ? 'nav-active'">
+               th:classappend="${#strings.startsWith(currentUri, '/usuarios')} ? 'nav-active'">
                 👤 Usuarios
             </a>
         </li>
         <li>
             <a th:href="@{/ventas/web}"
-               th:classappend="${#strings.startsWith(#httpServletRequest.requestURI, '/ventas')} ? 'nav-active'">
+               th:classappend="${#strings.startsWith(currentUri, '/ventas')} ? 'nav-active'">
                 💰 Ventas
             </a>
         </li>
         <li>
             <a th:href="@{/detalleventa/web}"
-               th:classappend="${#strings.startsWith(#httpServletRequest.requestURI, '/detalleventa')} ? 'nav-active'">
+               th:classappend="${#strings.startsWith(currentUri, '/detalleventa')} ? 'nav-active'">
                 🧾 Det. Ventas
             </a>
         </li>

@@ -25,25 +25,25 @@ public class SecurityConfig {
                                 "/usuarios/web/editar/**", "/usuarios/web/actualizar/**",
                                 "/usuarios/web/eliminar/**").hasRole("ADMIN")
 
-                        // Gestion de clientes: solo ADMIN puede crear, editar o eliminar
-                        .requestMatchers("/clientes/web/nuevo", "/clientes/web/guardar",
-                                "/clientes/web/editar/**", "/clientes/web/actualizar/**",
+                        // Gestion de clientes: ADMIN y USER pueden crear; solo ADMIN puede editar o eliminar
+                        .requestMatchers("/clientes/web/editar/**", "/clientes/web/actualizar/**",
                                 "/clientes/web/eliminar/**").hasRole("ADMIN")
+                        .requestMatchers("/clientes/web/nuevo", "/clientes/web/guardar").hasAnyRole("ADMIN","USER")
 
-                        // Gestion de productos: solo ADMIN puede crear, editar o eliminar
-                        .requestMatchers("/productos/web/nuevo", "/productos/web/guardar",
-                                "/productos/web/editar/**", "/productos/web/actualizar/**",
+                        // Gestion de productos: ADMIN y USER pueden crear; solo ADMIN puede editar o eliminar
+                        .requestMatchers("/productos/web/editar/**", "/productos/web/actualizar/**",
                                 "/productos/web/eliminar/**").hasRole("ADMIN")
+                        .requestMatchers("/productos/web/nuevo", "/productos/web/guardar").hasAnyRole("ADMIN","USER")
 
-                        // Gestion de ventas: solo ADMIN puede crear, editar o eliminar
-                        .requestMatchers("/ventas/web/nuevo", "/ventas/web/guardar",
-                                "/ventas/web/editar/**", "/ventas/web/actualizar/**",
+                        // Gestion de ventas: ADMIN y USER pueden crear; solo ADMIN puede editar o eliminar
+                        .requestMatchers("/ventas/web/editar/**", "/ventas/web/actualizar/**",
                                 "/ventas/web/eliminar/**").hasRole("ADMIN")
+                        .requestMatchers("/ventas/web/nuevo", "/ventas/web/guardar").hasAnyRole("ADMIN","USER")
 
-                        // Gestion de detalle de venta: solo ADMIN puede crear, editar o eliminar
-                        .requestMatchers("/detalleventa/web/nuevo", "/detalleventa/web/guardar",
-                                "/detalleventa/web/editar/**", "/detalleventa/web/actualizar/**",
+                        // Gestion de detalle de venta: ADMIN y USER pueden crear; solo ADMIN puede editar o eliminar
+                        .requestMatchers("/detalleventa/web/editar/**", "/detalleventa/web/actualizar/**",
                                 "/detalleventa/web/eliminar/**").hasRole("ADMIN")
+                        .requestMatchers("/detalleventa/web/nuevo", "/detalleventa/web/guardar").hasAnyRole("ADMIN","USER")
 
                         // Cualquier otra ruta requiere estar autenticado
                         .anyRequest().authenticated()
@@ -62,7 +62,7 @@ public class SecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-
+        // Encoder sin cifrado, solo para desarrollo
         return NoOpPasswordEncoder.getInstance();
     }
 }

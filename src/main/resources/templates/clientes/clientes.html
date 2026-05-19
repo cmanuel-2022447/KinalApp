@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="fragments/layout">
+<head>
+    <title>Clientes</title>
+</head>
+<body>
+<div layout:fragment="content">
+
+    <!-- ===== VISTA: LISTADO ===== -->
+    <div th:if="${cliente == null}">
+        <div class="page-header">
+            <h2>👥 Clientes</h2>
+            <div sec:authorize="hasAnyRole('ADMIN','USER')">
+                <a th:href="@{/clientes/web/nuevo}" class="btn btn-primary">➕ Nuevo Cliente</a>
+            </div>
+        </div>
+        <div th:if="${success}" class="alert alert-success">✅ <span th:text="${success}"></span></div>
+        <div th:if="${error}"   class="alert alert-error">⚠️ <span th:text="${error}"></span></div>
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                <tr>
+                    <th>DPI o CUI</th>
+                    <th>Nombre</th>
+                    <th>Apellido</th>
+                    <th>Dirección</th>
+                    <th>Estado</th>
+                    <th sec:authorize="hasAnyRole('ADMIN','USER')">Acciones</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="c : ${clientes}">
+                    <td th:text="${c.dpiCliente}"></td>
+                    <td th:text="${c.nombreCliente}"></td>
+                    <td th:text="${c.apellidoCliente}"></td>
+                    <td th:text="${c.direccion}"></td>
+                    <td>
+                        <span class="badge"
+                              th:classappend="${c.estado == 1} ? 'badge-active' : 'badge-inactive'"
+                              th:text="${c.estado == 1} ? 'Activo' : 'Inactivo'"></span>
+                    </td>
+                    <td sec:authorize="hasAnyRole('ADMIN','USER')" style="display:flex;gap:6px;">
+                        <a sec:authorize="hasRole('ADMIN')"
+                           th:href="@{/clientes/web/editar/{dpi}(dpi=${c.dpiCliente})}"
+                           class="btn btn-warning">✏️ Editar</a>
+                        <a sec:authorize="hasRole('ADMIN')"
+                           th:href="@{/clientes/web/eliminar/{dpi}(dpi=${c.dpiCliente})}"
+                           class="btn btn-danger"
+                           onclick="return confirm('¿Eliminar este cliente?')">🗑️ Eliminar</a>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(clientes)}">
+                    <td colspan="6" style="text-align:center;color:#6b7280;padding:24px;">
+                        No hay clientes registrados.
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ===== VISTA: FORMULARIO ===== -->
+    <div th:if="${cliente != null}">
+        <div class="page-header">
+            <h2 th:text="${cliente.dpiCliente == null} ? '➕ Nuevo Cliente' : '✏️ Editar Cliente'">Formulario</h2>
+        </div>
+        <div class="form-card">
+            <form th:action="${cliente.dpiCliente == null} ? @{/clientes/web/guardar} : @{/clientes/web/actualizar/{dpi}(dpi=${cliente.dpiCliente})}"
+                  th:object="${cliente}" method="post">
+                <div class="form-group">
+                    <label>🪪 DPI o CUI</label>
+                    <input type="number" th:field="*{dpiCliente}"
+                           th:readonly="${cliente.dpiCliente != null}"
+                           placeholder="Número de DPI">
+                </div>
+                <div class="form-group">
+                    <label>👤 Nombre</label>
+                    <input type="text" th:field="*{nombreCliente}" placeholder="Nombre del cliente" required>
+                </div>
+                <div class="form-group">
+                    <label>👤 Apellido</label>
+                    <input type="text" th:field="*{apellidoCliente}" placeholder="Apellido del cliente" required>
+                </div>
+                <div class="form-group">
+                    <label>📍 Dirección</label>
+                    <input type="text" th:field="*{direccion}" placeholder="Dirección" required>
+                </div>
+                <div class="form-group">
+                    <label>🔘 Estado</label>
+                    <select th:field="*{estado}">
+                        <option value="1">Activo</option>
+                        <option value="0">Inactivo</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-success">💾 Guardar</button>
+                    <a th:href="@{/clientes/web}" class="btn btn-secondary">← Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>
