@@ -107,7 +107,7 @@ public class UsuarioController {
     @GetMapping("/web")
     public String listarWeb(Model model) {
         model.addAttribute("usuarios", usuarioService.listarTodos());
-        return "usuarios/list";
+        return "usuarios/usuarios";
     }
 
     /**
@@ -116,7 +116,7 @@ public class UsuarioController {
     @GetMapping("/web/nuevo")
     public String nuevoFormulario(Model model) {
         model.addAttribute("usuario", new Usuario());
-        return "usuarios/form";
+        return "usuarios/usuarios";
     }
 
     /**
@@ -142,7 +142,7 @@ public class UsuarioController {
             Usuario usuario = usuarioService.buscarPorCodigo(codigo)
                     .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
             model.addAttribute("usuario", usuario);
-            return "usuarios/form";
+            return "usuarios/usuarios";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
             return "redirect:/usuarios/web";

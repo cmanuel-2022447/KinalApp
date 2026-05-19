@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="fragments/layout">
+<head>
+    <title>Detalle de Ventas</title>
+</head>
+<body>
+<div layout:fragment="content">
+
+    <!-- ===== VISTA: LISTADO ===== -->
+    <div th:if="${detalle == null}">
+        <div class="page-header">
+            <h2>🧾 Detalle de Ventas</h2>
+            <div sec:authorize="hasAnyRole('ADMIN','USER')">
+                <a th:href="@{/detalleventa/web/nuevo}" class="btn btn-primary">➕ Nuevo Detalle</a>
+            </div>
+        </div>
+        <div th:if="${success}" class="alert alert-success">✅ <span th:text="${success}"></span></div>
+        <div th:if="${error}"   class="alert alert-error">⚠️ <span th:text="${error}"></span></div>
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                <tr>
+                    <th>Código</th><th>Producto</th><th>Venta</th><th>Cantidad</th>
+                    <th>Precio Unit.</th><th>Subtotal</th><th>Estado</th>
+                    <th sec:authorize="hasAnyRole('ADMIN','USER')">Acciones</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="d : ${detalles}">
+                    <td th:text="${d.codigoDetalleVenta}"></td>
+                    <td th:text="${d.producto != null ? d.producto.codigoProducto : '-'}"></td>
+                    <td th:text="${d.venta != null ? d.venta.codigoVenta : '-'}"></td>
+                    <td th:text="${d.cantidad}"></td>
+                    <td th:text="'Q ' + ${#numbers.formatDecimal(d.precioUnitario, 1, 2)}"></td>
+                    <td th:text="'Q ' + ${#numbers.formatDecimal(d.subtotal, 1, 2)}"></td>
+                    <td>
+                        <span class="badge"
+                              th:classappend="${d.estado == 1} ? 'badge-active' : 'badge-inactive'"
+                              th:text="${d.estado == 1} ? 'Activo' : 'Inactivo'"></span>
+                    </td>
+                    <td sec:authorize="hasAnyRole('ADMIN','USER')" style="display:flex;gap:6px;">
+                        <a sec:authorize="hasRole('ADMIN')"
+                           th:href="@{/detalleventa/web/editar/{codigo}(codigo=${d.codigoDetalleVenta})}"
+                           class="btn btn-warning">✏️ Editar</a>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(detalles)}">
+                    <td colspan="8" style="text-align:center;color:#6b7280;padding:24px;">
+                        No hay detalles de venta registrados.
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ===== VISTA: FORMULARIO ===== -->
+    <div th:if="${detalle != null}">
+        <div class="page-header">
+            <h2 th:text="${detalle.codigoDetalleVenta == null} ? '➕ Nuevo Detalle' : '✏️ Editar Detalle'">Formulario</h2>
+        </div>
+        <div class="form-card">
+            <form th:action="${detalle.codigoDetalleVenta == null} ? @{/detalleventa/web/guardar} : @{/detalleventa/web/actualizar/{codigo}(codigo=${detalle.codigoDetalleVenta})}"
+                  th:object="${detalle}" method="post">
+                <div class="form-group">
+                    <label>📦 Producto</label>
+                    <select th:field="*{producto.codigoProducto}">
+                        <option value="">-- Seleccione un producto --</option>
+                        <option th:each="p : ${productos}"
+                                th:value="${p.codigoProducto}"
+                                th:text="${p.nombreProducto}"></option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>💰 Venta</label>
+                    <select th:field="*{venta.codigoVenta}">
+                        <option value="">-- Seleccione una venta --</option>
+                        <option th:each="v : ${ventas}"
+                                th:value="${v.codigoVenta}"
+                                th:text="${'Venta #' + v.codigoVenta + ' - ' + v.fechaVenta}"></option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>🔢 Cantidad</label>
+                    <input type="number" th:field="*{cantidad}" placeholder="Cantidad" required>
+                </div>
+                <div class="form-group">
+                    <label>💵 Precio Unitario</label>
+                    <input type="number" step="0.01" th:field="*{precioUnitario}" placeholder="0.00" required>
+                </div>
+                <div class="form-group">
+                    <label>🧮 Subtotal</label>
+                    <input type="number" step="0.01" th:field="*{subtotal}" placeholder="0.00" required>
+                </div>
+                <div class="form-group">
+                    <label>🔘 Estado</label>
+                    <select th:field="*{estado}">
+                        <option value="1">Activo</option>
+                        <option value="0">Inactivo</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-success">💾 Guardar</button>
+                    <a th:href="@{/detalleventa/web}" class="btn btn-secondary">← Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

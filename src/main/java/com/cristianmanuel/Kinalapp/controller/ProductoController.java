@@ -119,7 +119,7 @@ public class ProductoController {
     public String listarWeb(Model model) {
         // Agrega al modelo la lista de productos bajo el nombre "productos"
         model.addAttribute("productos", productoService.listarTodos());
-        return "productos/list";  // Se espera list.html en src/main/resources/templates/productos/
+        return "productos/productos";  // Se espera list.html en src/main/resources/templates/productos/
     }
 
     /**
@@ -132,7 +132,7 @@ public class ProductoController {
     public String nuevoFormulario(Model model) {
         // Se crea una instancia vacía para que Thymeleaf pueda usar sus propiedades en el formulario.
         model.addAttribute("producto", new Producto());
-        return "productos/form";  // form.html en templates/productos/
+        return "productos/productos";  // form.html en templates/productos/
     }
 
     /**
@@ -169,7 +169,7 @@ public class ProductoController {
             Producto producto = productoService.buscarPorCodigo(codigo)
                     .orElseThrow(() -> new IllegalArgumentException("Producto no encontrado"));
             model.addAttribute("producto", producto);
-            return "productos/form";  // Reutilizamos la misma plantilla form.html
+            return "productos/productos";  // Reutilizamos la misma plantilla form.html
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
             return "redirect:/productos/web";

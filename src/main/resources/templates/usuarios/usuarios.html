@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="fragments/layout">
+<head>
+    <title>Usuarios</title>
+</head>
+<body>
+<div layout:fragment="content">
+
+    <!-- ===== VISTA: LISTADO ===== -->
+    <div th:if="${usuario == null}">
+        <div class="page-header">
+            <h2>👤 Usuarios</h2>
+            <a th:href="@{/usuarios/web/nuevo}" sec:authorize="hasRole('ADMIN')" class="btn btn-primary">➕ Nuevo Usuario</a>
+        </div>
+        <div th:if="${success}" class="alert alert-success">✅ <span th:text="${success}"></span></div>
+        <div th:if="${error}"   class="alert alert-error">⚠️ <span th:text="${error}"></span></div>
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                <tr>
+                    <th>Código</th><th>Username</th><th>Contraseña</th><th>Email</th><th>Rol</th><th>Estado</th>
+                    <th sec:authorize="hasAnyRole('ADMIN','USER')">Acciones</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="u : ${usuarios}">
+                    <td th:text="${u.codigoUsuario}"></td>
+                    <td th:text="${u.username}"></td>
+                    <td>******</td>
+                    <td th:text="${u.email}"></td>
+                    <td>
+                        <span class="badge"
+                              th:classappend="${u.rol == 'ADMIN'} ? 'badge-active' : 'badge-inactive'"
+                              th:text="${u.rol}"></span>
+                    </td>
+                    <td>
+                        <span class="badge"
+                              th:classappend="${u.estado == 1} ? 'badge-active' : 'badge-inactive'"
+                              th:text="${u.estado == 1} ? 'Activo' : 'Inactivo'"></span>
+                    </td>
+                    <td sec:authorize="hasAnyRole('ADMIN','USER')" style="display:flex;gap:6px;">
+                        <a sec:authorize="hasRole('ADMIN')"
+                           th:href="@{/usuarios/web/editar/{codigo}(codigo=${u.codigoUsuario})}"
+                           class="btn btn-warning">✏️ Editar</a>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(usuarios)}">
+                    <td colspan="7" style="text-align:center;color:#6b7280;padding:24px;">
+                        No hay usuarios registrados.
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ===== VISTA: FORMULARIO ===== -->
+    <div th:if="${usuario != null}">
+        <div class="page-header">
+            <h2 th:text="${usuario.codigoUsuario == null} ? '➕ Nuevo Usuario' : '✏️ Editar Usuario'">Formulario</h2>
+        </div>
+        <div class="form-card">
+            <div th:if="${error}" class="alert alert-error">⚠️ <span th:text="${error}"></span></div>
+            <form th:action="${usuario.codigoUsuario == null} ? @{/usuarios/web/guardar} : @{/usuarios/web/actualizar/{codigo}(codigo=${usuario.codigoUsuario})}"
+                  th:object="${usuario}" method="post">
+                <div class="form-group" th:if="${usuario.codigoUsuario != null}">
+                    <label>🔑 Código de Usuario</label>
+                    <input type="text" th:value="${usuario.codigoUsuario}" readonly>
+                </div>
+                <div class="form-group">
+                    <label>👤 Nombre de Usuario</label>
+                    <input type="text" th:field="*{username}" placeholder="Ej: jperez" required>
+                </div>
+                <div class="form-group">
+                    <label>🔒 Contraseña</label>
+                    <input type="password" th:field="*{password}" placeholder="••••••••" required>
+                    <p style="font-size:.73rem;color:#94a3b8;margin-top:4px;"
+                       th:if="${usuario.codigoUsuario != null}">
+                        Escribe la nueva contraseña. Se encriptará automáticamente.
+                    </p>
+                </div>
+                <div class="form-group">
+                    <label>📧 Correo Electrónico</label>
+                    <input type="email" th:field="*{email}" placeholder="correo@ejemplo.com" required>
+                </div>
+                <div class="form-group">
+                    <label>🎭 Rol</label>
+                    <select th:field="*{rol}" required>
+                        <option value="">-- Seleccione un rol --</option>
+                        <option value="USER">Usuario</option>
+                        <option value="ADMIN">Administrador</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>🔘 Estado</label>
+                    <select th:field="*{estado}">
+                        <option value="1">Activo</option>
+                        <option value="0">Inactivo</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-success">💾 Guardar</button>
+                    <a th:href="@{/usuarios/web}" class="btn btn-secondary">← Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

@@ -95,7 +95,7 @@ public class VentasController {
     @GetMapping("/web")
     public String listarWeb(Model model) {
         model.addAttribute("ventas", ventasService.listarTodos());
-        return "ventas/list";
+        return "ventas/ventas";
     }
 
     /**
@@ -108,7 +108,7 @@ public class VentasController {
         model.addAttribute("venta", new Ventas());
         model.addAttribute("clientes", clienteService.listarTodos());
         model.addAttribute("usuarios", usuarioService.listarTodos());
-        return "ventas/form";
+        return "ventas/ventas";
     }
 
     /**
@@ -137,7 +137,7 @@ public class VentasController {
             model.addAttribute("venta", venta);
             model.addAttribute("clientes", clienteService.listarTodos());
             model.addAttribute("usuarios", usuarioService.listarTodos());
-            return "ventas/form";
+            return "ventas/ventas";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
             return "redirect:/ventas/web";

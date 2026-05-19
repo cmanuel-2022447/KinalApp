@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="fragments/layout">
+<head>
+    <title>Productos</title>
+</head>
+<body>
+<div layout:fragment="content">
+
+    <!-- ===== VISTA: LISTADO ===== -->
+    <div th:if="${producto == null}">
+        <div class="page-header">
+            <h2>📦 Productos</h2>
+            <div sec:authorize="hasAnyRole('ADMIN','USER')">
+                <a th:href="@{/productos/web/nuevo}" class="btn btn-primary">➕ Nuevo Producto</a>
+            </div>
+        </div>
+        <div th:if="${success}" class="alert alert-success">✅ <span th:text="${success}"></span></div>
+        <div th:if="${error}"   class="alert alert-error">⚠️ <span th:text="${error}"></span></div>
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                <tr>
+                    <th>Código</th><th>Nombre Producto</th><th>Precio</th><th>Stock</th><th>Estado</th>
+                    <th sec:authorize="hasAnyRole('ADMIN','USER')">Acciones</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="p : ${productos}">
+                    <td th:text="${p.codigoProducto}"></td>
+                    <td th:text="${p.nombreProducto}"></td>
+                    <td th:text="'Q ' + ${#numbers.formatDecimal(p.precio, 1, 2)}"></td>
+                    <td th:text="${p.stock}"></td>
+                    <td>
+                        <span class="badge"
+                              th:classappend="${p.estado == 1} ? 'badge-active' : 'badge-inactive'"
+                              th:text="${p.estado == 1} ? 'Activo' : 'Inactivo'"></span>
+                    </td>
+                    <td sec:authorize="hasAnyRole('ADMIN','USER')" style="display:flex;gap:6px;">
+                        <a sec:authorize="hasRole('ADMIN')"
+                           th:href="@{/productos/web/editar/{codigo}(codigo=${p.codigoProducto})}"
+                           class="btn btn-warning">✏️ Editar</a>
+                        <a sec:authorize="hasRole('ADMIN')"
+                           th:href="@{/productos/web/eliminar/{codigo}(codigo=${p.codigoProducto})}"
+                           class="btn btn-danger"
+                           onclick="return confirm('¿Eliminar este producto?')">🗑️ Eliminar</a>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(productos)}">
+                    <td colspan="6" style="text-align:center;color:#6b7280;padding:24px;">
+                        No hay productos registrados.
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ===== VISTA: FORMULARIO ===== -->
+    <div th:if="${producto != null}">
+        <div class="page-header">
+            <h2 th:text="${producto.codigoProducto == null} ? '➕ Nuevo Producto' : '✏️ Editar Producto'">Formulario</h2>
+        </div>
+        <div class="form-card">
+            <form th:action="${producto.codigoProducto == null} ? @{/productos/web/guardar} : @{/productos/web/actualizar/{codigo}(codigo=${producto.codigoProducto})}"
+                  th:object="${producto}" method="post">
+                <div class="form-group">
+                    <label>📦 Nombre</label>
+                    <input type="text" th:field="*{nombreProducto}" placeholder="Nombre del producto" required>
+                </div>
+                <div class="form-group">
+                    <label>💵 Precio</label>
+                    <input type="number" step="0.01" th:field="*{precio}" placeholder="0.00" required>
+                </div>
+                <div class="form-group">
+                    <label>📊 Stock</label>
+                    <input type="number" th:field="*{stock}" placeholder="Cantidad en stock" required>
+                </div>
+                <div class="form-group">
+                    <label>🔘 Estado</label>
+                    <select th:field="*{estado}">
+                        <option value="1">Activo</option>
+                        <option value="0">Inactivo</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-success">💾 Guardar</button>
+                    <a th:href="@{/productos/web}" class="btn btn-secondary">← Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>
