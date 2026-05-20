@@ -4,7 +4,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.crypto.password.NoOpPasswordEncoder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
@@ -20,10 +20,10 @@ public class SecurityConfig {
                         // Rutas publicas: no requieren autenticacion
                         .requestMatchers("/css/**", "/js/**", "/img/**", "/login", "/registro").permitAll()
 
-                        // Gestion de usuarios: solo ADMIN puede crear, editar o eliminar
-                        .requestMatchers("/usuarios/web/nuevo", "/usuarios/web/guardar",
-                                "/usuarios/web/editar/**", "/usuarios/web/actualizar/**",
+                        // Gestion de usuarios: ADMIN y USER pueden crear; solo ADMIN puede editar o eliminar
+                        .requestMatchers("/usuarios/web/editar/**", "/usuarios/web/actualizar/**",
                                 "/usuarios/web/eliminar/**").hasRole("ADMIN")
+                        .requestMatchers("/usuarios/web/nuevo", "/usuarios/web/guardar").hasAnyRole("ADMIN","USER")
 
                         // Gestion de clientes: ADMIN y USER pueden crear; solo ADMIN puede editar o eliminar
                         .requestMatchers("/clientes/web/editar/**", "/clientes/web/actualizar/**",
@@ -62,7 +62,7 @@ public class SecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        // Encoder sin cifrado, solo para desarrollo
-        return NoOpPasswordEncoder.getInstance();
+        // BCrypt: encriptación segura para contraseñas en producción
+        return new BCryptPasswordEncoder();
     }
 }
