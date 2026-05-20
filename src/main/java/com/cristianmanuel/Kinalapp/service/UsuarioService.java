@@ -3,6 +3,7 @@ package com.cristianmanuel.Kinalapp.service;
 import com.cristianmanuel.Kinalapp.entity.Usuario;
 import com.cristianmanuel.Kinalapp.repository.UsuarioRepository;
 import com.cristianmanuel.Kinalapp.repository.VentasRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,10 +17,13 @@ public class UsuarioService implements IUsuarioService {
 
     private final UsuarioRepository usuarioRepository;
     private final VentasRepository ventasRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UsuarioService(UsuarioRepository usuarioRepository, VentasRepository ventasRepository) {
+    public UsuarioService(UsuarioRepository usuarioRepository, VentasRepository ventasRepository,
+                          PasswordEncoder passwordEncoder) {
         this.usuarioRepository = usuarioRepository;
         this.ventasRepository = ventasRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -34,6 +38,8 @@ public class UsuarioService implements IUsuarioService {
         if (usuario.getEstado() == null) {
             usuario.setEstado(1L);
         }
+        // Encriptar la contraseña con BCrypt antes de persistir
+        usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
         return usuarioRepository.save(usuario);
     }
 
@@ -59,6 +65,8 @@ public class UsuarioService implements IUsuarioService {
         }
         usuario.setCodigoUsuario(codigo);
         validarCampos(usuario);
+        // Encriptar la nueva contraseña con BCrypt antes de persistir
+        usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
         return usuarioRepository.save(usuario);
     }
 
@@ -85,11 +93,10 @@ public class UsuarioService implements IUsuarioService {
     @Override
     @Transactional(readOnly = true)
     public Optional<Usuario> login(String username, String password) {
-        // Busca lista de usuarios con ese username (puede haber duplicados por error, se previene)
         List<Usuario> usuarios = usuarioRepository.findByUsername(username);
-        // Filtra por coincidencia de contraseña y toma el primero
+        // Comparar con BCrypt (no texto plano)
         return usuarios.stream()
-                .filter(u -> u.getPassword().equals(password))
+                .filter(u -> passwordEncoder.matches(password, u.getPassword()))
                 .findFirst();
     }
 
